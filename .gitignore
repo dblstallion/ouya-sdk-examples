@@ -40,6 +40,6 @@ Corona/OuyaCoronaPlugin/android-plugin/gen
 Marmalade/InAppPurchases/build_inapppurchases_vc11/
 Marmalade/MarmaladeODK/build_odk_android_java/
 Marmalade/MarmaladeODK/build_odk_android_linux_scons_arm/
-Marmalade/MarmaladeODK/lib/
 Marmalade/MarmaladeODK/obj/
 Marmalade/VirtualController/build_virtualcontroller_vc11/
+Marmalade/MarmaladeODK/stamp/ODK.s4e.stamp

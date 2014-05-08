@@ -11,10 +11,12 @@
 #include "ODK.h"
 
 
-// For MIPs (and WP8) platform we do not have asm code for stack switching 
+#ifndef S3E_EXT_SKIP_LOADER_CALL_LOCK
+// For MIPs (and WP8) platform we do not have asm code for stack switching
 // implemented. So we make LoaderCallStart call manually to set GlobalLock
 #if defined __mips || defined S3E_ANDROID_X86 || (defined(WINAPI_FAMILY) && (WINAPI_FAMILY == WINAPI_FAMILY_PHONE_APP))
-#define LOADER_CALL
+#define LOADER_CALL_LOCK
+#endif
 #endif
 
 /**
@@ -70,7 +72,7 @@ static bool _extLoad()
             g_GotExt = true;
         else
             s3eDebugAssertShow(S3E_MESSAGE_CONTINUE_STOP_IGNORE,                 "error loading extension: ODK");
-            
+
         g_TriedExt = true;
         g_TriedNoMsgExt = true;
     }
@@ -106,13 +108,13 @@ void OuyaController_startOfFrame()
     if (!_extLoad())
         return;
 
-#ifdef LOADER_CALL
+#ifdef LOADER_CALL_LOCK
     s3eDeviceLoaderCallStart(S3E_TRUE, NULL);
 #endif
 
     g_Ext.m_OuyaController_startOfFrame();
 
-#ifdef LOADER_CALL
+#ifdef LOADER_CALL_LOCK
     s3eDeviceLoaderCallDone(S3E_TRUE, NULL);
 #endif
 
@@ -126,13 +128,13 @@ bool OuyaController_selectControllerByPlayer(int playerNum)
     if (!_extLoad())
         return false;
 
-#ifdef LOADER_CALL
+#ifdef LOADER_CALL_LOCK
     s3eDeviceLoaderCallStart(S3E_TRUE, NULL);
 #endif
 
     bool ret = g_Ext.m_OuyaController_selectControllerByPlayer(playerNum);
 
-#ifdef LOADER_CALL
+#ifdef LOADER_CALL_LOCK
     s3eDeviceLoaderCallDone(S3E_TRUE, NULL);
 #endif
 
@@ -146,13 +148,13 @@ bool OuyaController_selectControllerByDeviceID(int deviceID)
     if (!_extLoad())
         return false;
 
-#ifdef LOADER_CALL
+#ifdef LOADER_CALL_LOCK
     s3eDeviceLoaderCallStart(S3E_TRUE, NULL);
 #endif
 
     bool ret = g_Ext.m_OuyaController_selectControllerByDeviceID(deviceID);
 
-#ifdef LOADER_CALL
+#ifdef LOADER_CALL_LOCK
     s3eDeviceLoaderCallDone(S3E_TRUE, NULL);
 #endif
 
@@ -166,13 +168,13 @@ int OuyaController_getAxisValue(int axis)
     if (!_extLoad())
         return 0;
 
-#ifdef LOADER_CALL
+#ifdef LOADER_CALL_LOCK
     s3eDeviceLoaderCallStart(S3E_TRUE, NULL);
 #endif
 
     int ret = g_Ext.m_OuyaController_getAxisValue(axis);
 
-#ifdef LOADER_CALL
+#ifdef LOADER_CALL_LOCK
     s3eDeviceLoaderCallDone(S3E_TRUE, NULL);
 #endif
 
@@ -186,13 +188,13 @@ bool OuyaController_getButton(int button)
     if (!_extLoad())
         return false;
 
-#ifdef LOADER_CALL
+#ifdef LOADER_CALL_LOCK
     s3eDeviceLoaderCallStart(S3E_TRUE, NULL);
 #endif
 
     bool ret = g_Ext.m_OuyaController_getButton(button);
 
-#ifdef LOADER_CALL
+#ifdef LOADER_CALL_LOCK
     s3eDeviceLoaderCallDone(S3E_TRUE, NULL);
 #endif
 
@@ -206,13 +208,13 @@ bool OuyaController_buttonPressedThisFrame(int button)
     if (!_extLoad())
         return false;
 
-#ifdef LOADER_CALL
+#ifdef LOADER_CALL_LOCK
     s3eDeviceLoaderCallStart(S3E_TRUE, NULL);
 #endif
 
     bool ret = g_Ext.m_OuyaController_buttonPressedThisFrame(button);
 
-#ifdef LOADER_CALL
+#ifdef LOADER_CALL_LOCK
     s3eDeviceLoaderCallDone(S3E_TRUE, NULL);
 #endif
 
@@ -226,13 +228,13 @@ bool OuyaController_buttonReleasedThisFrame(int button)
     if (!_extLoad())
         return false;
 
-#ifdef LOADER_CALL
+#ifdef LOADER_CALL_LOCK
     s3eDeviceLoaderCallStart(S3E_TRUE, NULL);
 #endif
 
     bool ret = g_Ext.m_OuyaController_buttonReleasedThisFrame(button);
 
-#ifdef LOADER_CALL
+#ifdef LOADER_CALL_LOCK
     s3eDeviceLoaderCallDone(S3E_TRUE, NULL);
 #endif
 
@@ -246,13 +248,13 @@ bool OuyaController_buttonChangedThisFrame(int button)
     if (!_extLoad())
         return false;
 
-#ifdef LOADER_CALL
+#ifdef LOADER_CALL_LOCK
     s3eDeviceLoaderCallStart(S3E_TRUE, NULL);
 #endif
 
     bool ret = g_Ext.m_OuyaController_buttonChangedThisFrame(button);
 
-#ifdef LOADER_CALL
+#ifdef LOADER_CALL_LOCK
     s3eDeviceLoaderCallDone(S3E_TRUE, NULL);
 #endif
 
@@ -266,13 +268,13 @@ int OuyaController_getPlayerNum()
     if (!_extLoad())
         return 0;
 
-#ifdef LOADER_CALL
+#ifdef LOADER_CALL_LOCK
     s3eDeviceLoaderCallStart(S3E_TRUE, NULL);
 #endif
 
     int ret = g_Ext.m_OuyaController_getPlayerNum();
 
-#ifdef LOADER_CALL
+#ifdef LOADER_CALL_LOCK
     s3eDeviceLoaderCallDone(S3E_TRUE, NULL);
 #endif
 
@@ -286,13 +288,13 @@ void OuyaPlugin_asyncSetDeveloperId(const char* developerId)
     if (!_extLoad())
         return;
 
-#ifdef LOADER_CALL
+#ifdef LOADER_CALL_LOCK
     s3eDeviceLoaderCallStart(S3E_TRUE, NULL);
 #endif
 
     g_Ext.m_OuyaPlugin_asyncSetDeveloperId(developerId);
 
-#ifdef LOADER_CALL
+#ifdef LOADER_CALL_LOCK
     s3eDeviceLoaderCallDone(S3E_TRUE, NULL);
 #endif
 
@@ -306,13 +308,13 @@ void OuyaPlugin_asyncOuyaFetchGamerUUID(s3eCallback onSuccess, s3eCallback onFai
     if (!_extLoad())
         return;
 
-#ifdef LOADER_CALL
+#ifdef LOADER_CALL_LOCK
     s3eDeviceLoaderCallStart(S3E_TRUE, NULL);
 #endif
 
     g_Ext.m_OuyaPlugin_asyncOuyaFetchGamerUUID(onSuccess, onFailure, onCancel);
 
-#ifdef LOADER_CALL
+#ifdef LOADER_CALL_LOCK
     s3eDeviceLoaderCallDone(S3E_TRUE, NULL);
 #endif
 
@@ -326,13 +328,13 @@ void OuyaPlugin_asyncOuyaRequestProducts(const char* productsJson, s3eCallback o
     if (!_extLoad())
         return;
 
-#ifdef LOADER_CALL
+#ifdef LOADER_CALL_LOCK
     s3eDeviceLoaderCallStart(S3E_TRUE, NULL);
 #endif
 
     g_Ext.m_OuyaPlugin_asyncOuyaRequestProducts(productsJson, onSuccess, onFailure, onCancel);
 
-#ifdef LOADER_CALL
+#ifdef LOADER_CALL_LOCK
     s3eDeviceLoaderCallDone(S3E_TRUE, NULL);
 #endif
 
@@ -346,13 +348,13 @@ void OuyaPlugin_asyncOuyaRequestPurchase(const char* purchasable, s3eCallback on
     if (!_extLoad())
         return;
 
-#ifdef LOADER_CALL
+#ifdef LOADER_CALL_LOCK
     s3eDeviceLoaderCallStart(S3E_TRUE, NULL);
 #endif
 
     g_Ext.m_OuyaPlugin_asyncOuyaRequestPurchase(purchasable, onSuccess, onFailure, onCancel);
 
-#ifdef LOADER_CALL
+#ifdef LOADER_CALL_LOCK
     s3eDeviceLoaderCallDone(S3E_TRUE, NULL);
 #endif
 
@@ -366,13 +368,13 @@ void OuyaPlugin_asyncOuyaRequestReceipts(s3eCallback onSuccess, s3eCallback onFa
     if (!_extLoad())
         return;
 
-#ifdef LOADER_CALL
+#ifdef LOADER_CALL_LOCK
     s3eDeviceLoaderCallStart(S3E_TRUE, NULL);
 #endif
 
     g_Ext.m_OuyaPlugin_asyncOuyaRequestReceipts(onSuccess, onFailure, onCancel);
 
-#ifdef LOADER_CALL
+#ifdef LOADER_CALL_LOCK
     s3eDeviceLoaderCallDone(S3E_TRUE, NULL);
 #endif
 
