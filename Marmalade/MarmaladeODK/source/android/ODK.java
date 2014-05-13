@@ -57,7 +57,7 @@ public class ODK extends LoaderActivity
     @Override
     public void onCreate(Bundle savedInstanceState)
 	{
-        Log.i(LOG_TAG, "onCreate" );
+        Log.v(LOG_TAG, "onCreate" );
         super.onCreate(savedInstanceState);
         m_Activity = this;
 		OuyaController.init(this);
@@ -75,12 +75,12 @@ public class ODK extends LoaderActivity
 
 	private void initializeOUYA() {
 
-		Log.i(LOG_TAG, "Initializing OUYA...");
+		Log.v(LOG_TAG, "Initializing OUYA...");
 
-		Log.i(LOG_TAG, "Get application context...");
+		Log.v(LOG_TAG, "Get application context...");
 		Context context = getApplicationContext();
 
-		Log.i(LOG_TAG, "Load signing key...");
+		Log.v(LOG_TAG, "Load signing key...");
 		// load the application key from assets
 		try {
 			AssetManager assetManager = context.getAssets();
@@ -90,12 +90,12 @@ public class ODK extends LoaderActivity
 			inputStream.close();
 			IOuyaActivity.SetApplicationKey(applicationKey);
 
-			Log.i(LOG_TAG, "***Loaded signing key*********");
+			Log.v(LOG_TAG, "***Loaded signing key*********");
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 
-		Log.i(LOG_TAG, "Initialize MarmaladeOuyaPlugin...");
+		Log.v(LOG_TAG, "Initialize MarmaladeOuyaPlugin...");
 
 		// Initialize the Marmalade OUYA Plugin
 		MarmaladeOuyaPlugin marmaladeOuyaPlugin = new MarmaladeOuyaPlugin();
@@ -104,7 +104,7 @@ public class ODK extends LoaderActivity
 		//make activity accessible to statically
 		IOuyaActivity.SetActivity(this);
 
-		Log.i(LOG_TAG, "Spawn wait thread...");
+		Log.v(LOG_TAG, "Spawn wait thread...");
 
 		// spawn thread to wait to initialize ouya facade
 		Thread timer = new Thread() {
@@ -115,13 +115,13 @@ public class ODK extends LoaderActivity
 					final MarmaladeOuyaPlugin marmaladeOuyaPlugin = IOuyaActivity.GetMarmaladeOuyaPlugin();
 					if (null != marmaladeOuyaPlugin) {
 						if (marmaladeOuyaPlugin.getDeveloperId() != "") {
-							Log.i(LOG_TAG, "Detected developer id initializing...");
+							Log.v(LOG_TAG, "Detected developer id initializing...");
 
 							Runnable runnable = new Runnable()
 							{
 								public void run()
 								{
-									Log.i(LOG_TAG, "MarmaladeOuyaPlugin initializing...");
+									Log.v(LOG_TAG, "MarmaladeOuyaPlugin initializing...");
 									marmaladeOuyaPlugin.Initialize();
 								}
 							};
@@ -147,7 +147,7 @@ public class ODK extends LoaderActivity
 	@Override
 	public boolean onKeyDown(int keyCode, KeyEvent event)
 	{
-		//Log.i(LOG_TAG, "onKeyDown keyCode="+keyCode);
+		//Log.v(LOG_TAG, "onKeyDown keyCode="+keyCode);
 		boolean handled = OuyaController.onKeyDown(keyCode, event);
 		return handled || super.onKeyDown(keyCode, event);
 	}
@@ -156,7 +156,7 @@ public class ODK extends LoaderActivity
 	@Override
 	public boolean onKeyUp(int keyCode, KeyEvent event)
 	{
-		//Log.i(LOG_TAG, "onKeyUp keyCode="+keyCode);
+		//Log.v(LOG_TAG, "onKeyUp keyCode="+keyCode);
 		boolean handled = OuyaController.onKeyUp(keyCode, event);
 		return handled || super.onKeyUp(keyCode, event);
 	}
@@ -164,7 +164,7 @@ public class ODK extends LoaderActivity
 	@Override
 	public boolean onGenericMotionEvent(MotionEvent event)
 	{
-		//Log.i(LOG_TAG, "onGenericMotionEvent");
+		//Log.v(LOG_TAG, "onGenericMotionEvent");
 		boolean handled = OuyaController.onGenericMotionEvent(event);
 		return handled || super.onGenericMotionEvent(event);
 	}
@@ -172,14 +172,14 @@ public class ODK extends LoaderActivity
 
     public void OuyaController_startOfFrame()
     {
-		//Log.i(LOG_TAG, "OuyaController_startOfFrame");
+		//Log.v(LOG_TAG, "OuyaController_startOfFrame");
         OuyaController.startOfFrame();
     }
 
 
     public boolean OuyaController_selectControllerByPlayer(int playerNum)
     {
-		//Log.i(LOG_TAG, "OuyaController_selectControllerByPlayer playerNum="+playerNum);
+		//Log.v(LOG_TAG, "OuyaController_selectControllerByPlayer playerNum="+playerNum);
 		m_SelectedController = OuyaController.getControllerByPlayer(playerNum);
         return (m_SelectedController!=null);
     }
@@ -187,7 +187,7 @@ public class ODK extends LoaderActivity
 
     public boolean OuyaController_selectControllerByDeviceID(int deviceID)
     {
-		//Log.i(LOG_TAG, "OuyaController_selectControllerByDeviceID deviceID="+deviceID);
+		//Log.v(LOG_TAG, "OuyaController_selectControllerByDeviceID deviceID="+deviceID);
         m_SelectedController = OuyaController.getControllerByDeviceId(deviceID);
         return (m_SelectedController!=null);
     }
@@ -195,7 +195,7 @@ public class ODK extends LoaderActivity
 
     public int OuyaController_getAxisValue(int axis)
     {
-		//Log.i(LOG_TAG, "OuyaController_getAxisValue axis="+axis);
+		//Log.v(LOG_TAG, "OuyaController_getAxisValue axis="+axis);
 		if (m_SelectedController!=null)
 			return (int)(m_SelectedController.getAxisValue(axis)*256.0f);
 		else
@@ -205,7 +205,7 @@ public class ODK extends LoaderActivity
 
     public boolean OuyaController_getButton(int button)
     {
-		//Log.i(LOG_TAG, "OuyaController_getButton button="+button);
+		//Log.v(LOG_TAG, "OuyaController_getButton button="+button);
         if (m_SelectedController!=null)
 			return m_SelectedController.getButton(button);
 		else
@@ -215,7 +215,7 @@ public class ODK extends LoaderActivity
 
     public boolean OuyaController_buttonPressedThisFrame(int button)
     {
-		//Log.i(LOG_TAG, "OuyaController_buttonPressedThisFrame button="+button);
+		//Log.v(LOG_TAG, "OuyaController_buttonPressedThisFrame button="+button);
 		if (m_SelectedController!=null)
 			return m_SelectedController.buttonPressedThisFrame(button);
 		else
@@ -225,7 +225,7 @@ public class ODK extends LoaderActivity
 
     public boolean OuyaController_buttonReleasedThisFrame(int button)
     {
-		//Log.i(LOG_TAG, "OuyaController_buttonReleasedThisFrame button="+button);
+		//Log.v(LOG_TAG, "OuyaController_buttonReleasedThisFrame button="+button);
         if (m_SelectedController!=null)
 			return m_SelectedController.buttonReleasedThisFrame(button);
 		else
@@ -235,7 +235,7 @@ public class ODK extends LoaderActivity
 
     public boolean OuyaController_buttonChangedThisFrame(int button)
     {
-		//Log.i(LOG_TAG, "OuyaController_buttonChangedThisFrame button="+button);
+		//Log.v(LOG_TAG, "OuyaController_buttonChangedThisFrame button="+button);
         if (m_SelectedController!=null)
 			return m_SelectedController.buttonChangedThisFrame(button);
 		else
@@ -245,7 +245,7 @@ public class ODK extends LoaderActivity
 
     public int OuyaController_getPlayerNum()
     {
-		//Log.i(LOG_TAG, "OuyaController_getPlayerNum");
+		//Log.v(LOG_TAG, "OuyaController_getPlayerNum");
 		if (m_SelectedController!=null)
 			return m_SelectedController.getPlayerNum();
 		else
@@ -254,6 +254,6 @@ public class ODK extends LoaderActivity
 
     public void OuyaPlugin_asyncSetDeveloperId(String developerId)
     {
-		Log.i(LOG_TAG, "OuyaPlugin_asyncSetDeveloperId developerId="+developerId);
+		Log.v(LOG_TAG, "OuyaPlugin_asyncSetDeveloperId developerId="+developerId);
     }
 }
