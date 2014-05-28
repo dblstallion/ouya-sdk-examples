@@ -43,7 +43,7 @@ class CallbacksRequestReceipts
 {
 public:
 
-	void RegisterCallbacks(s3eCallback onSuccess, s3eCallback onFailure, s3eCallback onCancel);
+	void RegisterCallbacks(s3eCallback onSuccess, s3eCallback onFailure, s3eCallback onCancel, void* userData);
 
 	void OnSuccess(const std::vector<OuyaSDK::Receipt>& receipts);
 
@@ -62,7 +62,7 @@ private:
 	s3eRequestReceiptsFailureEvent m_dataRequestReceiptsFailureEvent;
 	s3eRequestReceiptsCancelEvent m_dataRequestReceiptsCancelEvent;
 
-	void RegisterCallback(s3eCallback callback, s3eCallback* savedCallback, int callbackType);
+	void RegisterCallback(s3eCallback callback, s3eCallback* savedCallback, int callbackType, void* userData);
 
 	//cache the receipt array
 	static OuyaSDK::ExtensionReceipt* m_receipts;

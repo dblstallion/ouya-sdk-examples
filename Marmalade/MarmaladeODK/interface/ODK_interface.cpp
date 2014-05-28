@@ -35,7 +35,7 @@ typedef       void(*OuyaPlugin_asyncSetDeveloperId_t)(const char* developerId);
 typedef       void(*OuyaPlugin_asyncOuyaFetchGamerUUID_t)(s3eCallback onSuccess, s3eCallback onFailure, s3eCallback onCancel);
 typedef       void(*OuyaPlugin_asyncOuyaRequestProducts_t)(const char* productsJson, s3eCallback onSuccess, s3eCallback onFailure, s3eCallback onCancel);
 typedef       void(*OuyaPlugin_asyncOuyaRequestPurchase_t)(const char* purchasable, s3eCallback onSuccess, s3eCallback onFailure, s3eCallback onCancel);
-typedef       void(*OuyaPlugin_asyncOuyaRequestReceipts_t)(s3eCallback onSuccess, s3eCallback onFailure, s3eCallback onCancel);
+typedef       void(*OuyaPlugin_asyncOuyaRequestReceipts_t)(s3eCallback onSuccess, s3eCallback onFailure, s3eCallback onCancel, void* userData);
 
 /**
  * struct that gets filled in by ODKRegister
@@ -361,7 +361,7 @@ void OuyaPlugin_asyncOuyaRequestPurchase(const char* purchasable, s3eCallback on
     return;
 }
 
-void OuyaPlugin_asyncOuyaRequestReceipts(s3eCallback onSuccess, s3eCallback onFailure, s3eCallback onCancel)
+void OuyaPlugin_asyncOuyaRequestReceipts(s3eCallback onSuccess, s3eCallback onFailure, s3eCallback onCancel, void* userData)
 {
     IwTrace(ODK_VERBOSE, ("calling ODK[13] func: OuyaPlugin_asyncOuyaRequestReceipts"));
 
@@ -372,7 +372,7 @@ void OuyaPlugin_asyncOuyaRequestReceipts(s3eCallback onSuccess, s3eCallback onFa
     s3eDeviceLoaderCallStart(S3E_TRUE, NULL);
 #endif
 
-    g_Ext.m_OuyaPlugin_asyncOuyaRequestReceipts(onSuccess, onFailure, onCancel);
+    g_Ext.m_OuyaPlugin_asyncOuyaRequestReceipts(onSuccess, onFailure, onCancel, userData);
 
 #ifdef LOADER_CALL_LOCK
     s3eDeviceLoaderCallDone(S3E_TRUE, NULL);
