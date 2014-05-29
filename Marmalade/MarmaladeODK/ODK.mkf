@@ -65,8 +65,7 @@ if {{ not defined IW_MKF_IWCRT}}
 #Include the extension's jar file during deployment
 deployments
 {
-    android-external-jars="lib/android/ODK.jar"        
-	android-external-jars="libs/ouya-sdk.jar"        
+    android-external-jars="lib/android/ODK.jar"
+    android-external-jars="libs/ouya-sdk.jar"
     android-so="lib/android/libODK.so"
-	android-custom-activity ='com.ODK.ODK'	
 }

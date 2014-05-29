@@ -26,7 +26,7 @@
 
 OuyaSDK::ExtensionReceipt* CallbacksRequestReceipts::m_receipts = NULL;
 
-void CallbacksRequestReceipts::RegisterCallback(s3eCallback callback, s3eCallback* savedCallback, int callbackType)
+void CallbacksRequestReceipts::RegisterCallback(s3eCallback callback, s3eCallback* savedCallback, int callbackType, void* userData)
 {
 	if (*savedCallback)
 	{
@@ -37,7 +37,7 @@ void CallbacksRequestReceipts::RegisterCallback(s3eCallback callback, s3eCallbac
 				S3E_ODK_CALLBACKS_MAX,
 				callbackType,
 				*savedCallback,
-				NULL);
+				userData);
 		*savedCallback = NULL;
 	}
 
@@ -54,11 +54,11 @@ void CallbacksRequestReceipts::RegisterCallback(s3eCallback callback, s3eCallbac
 			S3E_FALSE);
 }
 
-void CallbacksRequestReceipts::RegisterCallbacks(s3eCallback onSuccess, s3eCallback onFailure, s3eCallback onCancel)
+void CallbacksRequestReceipts::RegisterCallbacks(s3eCallback onSuccess, s3eCallback onFailure, s3eCallback onCancel, void* userData)
 {
-	RegisterCallback(onSuccess, &m_onSuccess, S3E_ODK_CALLBACKS_REQUEST_RECEIPTS_ON_SUCCESS);
-	RegisterCallback(onFailure, &m_onFailure, S3E_ODK_CALLBACKS_REQUEST_RECEIPTS_ON_FAILURE);
-	RegisterCallback(onCancel, &m_onCancel, S3E_ODK_CALLBACKS_REQUEST_RECEIPTS_ON_CANCEL);
+	RegisterCallback(onSuccess, &m_onSuccess, S3E_ODK_CALLBACKS_REQUEST_RECEIPTS_ON_SUCCESS, userData);
+	RegisterCallback(onFailure, &m_onFailure, S3E_ODK_CALLBACKS_REQUEST_RECEIPTS_ON_FAILURE, userData);
+	RegisterCallback(onCancel, &m_onCancel, S3E_ODK_CALLBACKS_REQUEST_RECEIPTS_ON_CANCEL, userData);
 }
 
 void CopyStringReceipt(std::string source, char** destination)
