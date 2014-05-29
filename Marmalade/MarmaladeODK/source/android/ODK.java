@@ -30,6 +30,7 @@ package com.ODK;
 
 
 import android.app.Activity;
+import android.content.Intent;
 import android.app.NativeActivity;
 import android.content.Context;
 import android.content.res.AssetManager;
@@ -42,6 +43,7 @@ import com.ideaworks3d.marmalade.LoaderActivity;
 import java.io.IOException;
 import java.io.InputStream;
 import tv.ouya.console.api.OuyaController;
+import tv.ouya.console.api.OuyaInputMapper;
 
 public class ODK extends LoaderActivity
 {
@@ -53,6 +55,9 @@ public class ODK extends LoaderActivity
 	public static ODK 				m_Activity = null;
 	public static OuyaController	m_SelectedController = null;
     public static boolean			m_bInitialized = false;
+    
+    private long mLastAnalogTick;
+    private long mLastDigitalTick;
 
     @Override
     public void onCreate(Bundle savedInstanceState)
@@ -60,6 +65,7 @@ public class ODK extends LoaderActivity
         Log.v(LOG_TAG, "onCreate" );
         super.onCreate(savedInstanceState);
         m_Activity = this;
+        OuyaInputMapper.init(this);
 		OuyaController.init(this);
 
 		initializeOUYA();
@@ -68,6 +74,8 @@ public class ODK extends LoaderActivity
     @Override
 		protected void onDestroy() {
 			super.onDestroy();
+            
+            OuyaInputMapper.shutdown(this);
 
 			// notify threads it's time to exit
 			m_waitToExit = false;
@@ -143,31 +151,43 @@ public class ODK extends LoaderActivity
         };
         timer.start();
 	}
-
-	@Override
-	public boolean onKeyDown(int keyCode, KeyEvent event)
-	{
-		//Log.v(LOG_TAG, "onKeyDown keyCode="+keyCode);
-		boolean handled = OuyaController.onKeyDown(keyCode, event);
-		return handled || super.onKeyDown(keyCode, event);
-	}
-
-
-	@Override
-	public boolean onKeyUp(int keyCode, KeyEvent event)
-	{
-		//Log.v(LOG_TAG, "onKeyUp keyCode="+keyCode);
-		boolean handled = OuyaController.onKeyUp(keyCode, event);
-		return handled || super.onKeyUp(keyCode, event);
-	}
-
-	@Override
-	public boolean onGenericMotionEvent(MotionEvent event)
-	{
-		//Log.v(LOG_TAG, "onGenericMotionEvent");
-		boolean handled = OuyaController.onGenericMotionEvent(event);
-		return handled || super.onGenericMotionEvent(event);
-	}
+    
+    public boolean dispatchKeyEvent(KeyEvent keyEvent)
+      {
+        if (OuyaInputMapper.shouldHandleInputEvent(keyEvent))
+        {
+          broadcastInputNotification(false);
+          return OuyaInputMapper.dispatchKeyEvent(this, keyEvent);
+        }
+        return super.dispatchKeyEvent(keyEvent);
+      }
+      
+      public boolean dispatchGenericMotionEvent(MotionEvent motionEvent)
+      {
+        if (OuyaInputMapper.shouldHandleInputEvent(motionEvent))
+        {
+          broadcastInputNotification(true);
+          return OuyaInputMapper.dispatchGenericMotionEvent(this, motionEvent);
+        }
+        return super.dispatchGenericMotionEvent(motionEvent);
+      }
+      
+      private void broadcastInputNotification(boolean analog)
+      {
+        long curTick = System.nanoTime() / 1000000L;
+        long lastTick = analog ? this.mLastAnalogTick : this.mLastDigitalTick;
+        if (curTick - lastTick < 30000L) {
+          return;
+        }
+        if (analog) {
+          this.mLastAnalogTick = curTick;
+        } else {
+          this.mLastDigitalTick = curTick;
+        }
+        Intent intent = new Intent("tv.ouya.metrics.action.USER_INPUT");
+        intent.putExtra("analog", analog);
+        sendBroadcast(intent);
+      }
 
 
     public void OuyaController_startOfFrame()

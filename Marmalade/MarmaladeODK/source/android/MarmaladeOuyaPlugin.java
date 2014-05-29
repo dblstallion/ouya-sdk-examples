@@ -255,8 +255,7 @@ public class MarmaladeOuyaPlugin
 				if (m_enableDebugLogging) {
 					Log.i(TAG, "MarmaladeOuyaPlugin.requestPurchaseAsync: MarmaladeOuyaFacade is valid");
 				}
-				Product product = new Product();
-				product.setIdentifier(identifier);
+				Product product = new Product(identifier, null, 0, 0.0, null, 0.0, 0.0, null, null);
 				IOuyaActivity.GetMarmaladeOuyaFacade().requestPurchase(product);
 			}
 		}
