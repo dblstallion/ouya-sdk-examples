@@ -50,7 +50,7 @@ void CallbacksRequestReceipts::RegisterCallback(s3eCallback callback, s3eCallbac
 			S3E_ODK_CALLBACKS_MAX,
 			callbackType,
 			*savedCallback,
-			NULL,
+			userData,
 			S3E_FALSE);
 }
 
