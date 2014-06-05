@@ -65,6 +65,7 @@ public class ODK extends LoaderActivity
         Log.v(LOG_TAG, "onCreate" );
         super.onCreate(savedInstanceState);
         m_Activity = this;
+        OuyaInputMapper.setEnableControllerDispatch(false);
         OuyaInputMapper.init(this);
 		OuyaController.init(this);
 
@@ -159,8 +160,10 @@ public class ODK extends LoaderActivity
           broadcastInputNotification(false);
           return OuyaInputMapper.dispatchKeyEvent(this, keyEvent);
         }
-        
-        return true;
+        else
+        {
+            return super.dispatchKeyEvent(keyEvent);
+        }
       }
       
       public boolean dispatchGenericMotionEvent(MotionEvent motionEvent)
@@ -170,8 +173,10 @@ public class ODK extends LoaderActivity
           broadcastInputNotification(true);
           return OuyaInputMapper.dispatchGenericMotionEvent(this, motionEvent);
         }
-        
-        return true;
+        else
+        {
+            return super.dispatchGenericMotionEvent(motionEvent);
+        }
       }
       
       private void broadcastInputNotification(boolean analog)
@@ -190,7 +195,33 @@ public class ODK extends LoaderActivity
         intent.putExtra("analog", analog);
         sendBroadcast(intent);
       }
+    
+    //Forward key down events to GameController so it can manage state
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event)
+    {
+        boolean handled = false;
+        handled = OuyaController.onKeyDown(keyCode, event);
+        return handled || super.onKeyDown(keyCode, event);
+    }
+    
+    //Forward key up events to GameController so it can manage state
+    @Override
+    public boolean onKeyUp(int keyCode, KeyEvent event)
+    {
+        boolean handled = false;
+        handled = OuyaController.onKeyUp(keyCode, event);
+        return handled || super.onKeyUp(keyCode, event);
+    }
 
+    //Forward motion events to GameController so it can manage state
+    @Override
+    public boolean onGenericMotionEvent(MotionEvent event)
+    {
+        boolean handled = false;
+        handled = OuyaController.onGenericMotionEvent(event);
+        return handled || super.onGenericMotionEvent(event);
+    }
 
     public void OuyaController_startOfFrame()
     {
