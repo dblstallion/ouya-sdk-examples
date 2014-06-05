@@ -159,7 +159,8 @@ public class ODK extends LoaderActivity
           broadcastInputNotification(false);
           return OuyaInputMapper.dispatchKeyEvent(this, keyEvent);
         }
-        return super.dispatchKeyEvent(keyEvent);
+        
+        return true;
       }
       
       public boolean dispatchGenericMotionEvent(MotionEvent motionEvent)
@@ -169,7 +170,8 @@ public class ODK extends LoaderActivity
           broadcastInputNotification(true);
           return OuyaInputMapper.dispatchGenericMotionEvent(this, motionEvent);
         }
-        return super.dispatchGenericMotionEvent(motionEvent);
+        
+        return true;
       }
       
       private void broadcastInputNotification(boolean analog)
