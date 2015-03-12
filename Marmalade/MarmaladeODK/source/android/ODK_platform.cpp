@@ -338,11 +338,11 @@ void OuyaPlugin_asyncOuyaRequestPurchase(const char* purchasable, s3eCallback on
 	g_pluginOuya.AsyncOuyaRequestPurchase(purchasable);
 }
 
-void OuyaPlugin_asyncOuyaRequestReceipts(s3eCallback onSuccess, s3eCallback onFailure, s3eCallback onCancel)
+void OuyaPlugin_asyncOuyaRequestReceipts(s3eCallback onSuccess, s3eCallback onFailure, s3eCallback onCancel, void* userData)
 {
 	IwTrace(ODK, ("ODK_platform: OuyaPlugin_asyncOuyaRequestReceipts"));
 
-	OuyaSDK::CallbackSingleton::GetInstance()->m_callbacksRequestReceipts->RegisterCallbacks(onSuccess, onFailure, onCancel);
+	OuyaSDK::CallbackSingleton::GetInstance()->m_callbacksRequestReceipts->RegisterCallbacks(onSuccess, onFailure, onCancel, userData);
 
 	g_pluginOuya.AsyncOuyaRequestReceipts();
 }

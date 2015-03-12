@@ -81,7 +81,7 @@ if {{defined S3E_ANDROID}}
 		ExtensionProduct.cpp
 		ExtensionReceipt.cpp
 		JSONArray.cpp
-		JsonObject.cpp
+		JSONObject.cpp
 		OuyaController.cpp
 		ODK_register.cpp
 		ODK.cpp

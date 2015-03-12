@@ -66,7 +66,7 @@ void OuyaPlugin_initOuyaPlugin(const char* jsonData, s3eCallback onSuccess, s3eC
 void OuyaPlugin_asyncOuyaRequestGamerInfo(s3eCallback onSuccess, s3eCallback onFailure, s3eCallback onCancel) false run_on_os_thread
 void OuyaPlugin_asyncOuyaRequestProducts(const char* productsJson, s3eCallback onSuccess, s3eCallback onFailure, s3eCallback onCancel) false run_on_os_thread
 void OuyaPlugin_asyncOuyaRequestPurchase(const char* purchasable, s3eCallback onSuccess, s3eCallback onFailure, s3eCallback onCancel) false run_on_os_thread
-void OuyaPlugin_asyncOuyaRequestReceipts(s3eCallback onSuccess, s3eCallback onFailure, s3eCallback onCancel) false run_on_os_thread
+void OuyaPlugin_asyncOuyaRequestReceipts(s3eCallback onSuccess, s3eCallback onFailure, s3eCallback onCancel, void* userData) false run_on_os_thread
 
 int OuyaPlugin_JSONObject_Construct() false run_on_os_thread
 void OuyaPlugin_JSONObject_Put(int jsonObject, const char* name, const char* value) false run_on_os_thread

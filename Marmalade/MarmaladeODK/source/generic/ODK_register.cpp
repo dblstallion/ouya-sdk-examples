@@ -84,10 +84,10 @@ static void OuyaPlugin_asyncOuyaRequestPurchase_wrap(const char* purchasable, s3
     s3eEdkThreadRunOnOS((s3eEdkThreadFunc)OuyaPlugin_asyncOuyaRequestPurchase, 4, purchasable, onSuccess, onFailure, onCancel);
 }
 
-static void OuyaPlugin_asyncOuyaRequestReceipts_wrap(s3eCallback onSuccess, s3eCallback onFailure, s3eCallback onCancel)
+static void OuyaPlugin_asyncOuyaRequestReceipts_wrap(s3eCallback onSuccess, s3eCallback onFailure, s3eCallback onCancel, void* userData)
 {
     IwTrace(ODK_VERBOSE, ("calling ODK func on main thread: OuyaPlugin_asyncOuyaRequestReceipts"));
-    s3eEdkThreadRunOnOS((s3eEdkThreadFunc)OuyaPlugin_asyncOuyaRequestReceipts, 3, onSuccess, onFailure, onCancel);
+    s3eEdkThreadRunOnOS((s3eEdkThreadFunc)OuyaPlugin_asyncOuyaRequestReceipts, 4, onSuccess, onFailure, onCancel, userData);
 }
 
 static int OuyaPlugin_JSONObject_Construct_wrap()
