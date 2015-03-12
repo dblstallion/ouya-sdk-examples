@@ -53,17 +53,6 @@ public class IOuyaActivity
 	{
 		m_coronaOuyaFacade = coronaOuyaFacade;
 	}
-	
-	// save reference to the ouya corona plugin
-	protected static CoronaOuyaPlugin m_ouyaCoronaPlugin = null;
-	public static CoronaOuyaPlugin GetOuyaCoronaPlugin()
-	{
-		return m_ouyaCoronaPlugin;
-	}
-	public static void SetOuyaCoronaPlugin(CoronaOuyaPlugin ouyaCoronaPlugin)
-	{
-		m_ouyaCoronaPlugin = ouyaCoronaPlugin;
-	}
 
 	/*
 	* The application key. This is used to decrypt encrypted receipt responses. This should be replaced with the
@@ -79,14 +68,14 @@ public class IOuyaActivity
 		m_applicationKey = applicationKey;
 	}
 	
-	protected static CallbacksFetchGamerUUID m_callbacksFetchGamerUUID = null;
-	public static CallbacksFetchGamerUUID GetCallbacksFetchGamerUUID()
+	protected static CallbacksRequestGamerInfo m_callbacksRequestGamerInfo = null;
+	public static CallbacksRequestGamerInfo GetCallbacksRequestGamerInfo()
 	{
-		return m_callbacksFetchGamerUUID;
+		return m_callbacksRequestGamerInfo;
 	}
-	public static void SetCallbacksFetchGamerUUID(CallbacksFetchGamerUUID callbacksFetchGamerUUID)
+	public static void SetCallbacksRequestGamerInfo(CallbacksRequestGamerInfo callbacks)
 	{
-		m_callbacksFetchGamerUUID = callbacksFetchGamerUUID;
+		m_callbacksRequestGamerInfo = callbacks;
 	}
 	
 	protected static CallbacksRequestProducts m_callbacksRequestProducts = null;
@@ -94,9 +83,9 @@ public class IOuyaActivity
 	{
 		return m_callbacksRequestProducts;
 	}
-	public static void SetCallbacksRequestProducts(CallbacksRequestProducts callbacksRequestProducts)
+	public static void SetCallbacksRequestProducts(CallbacksRequestProducts callbacks)
 	{
-		m_callbacksRequestProducts = callbacksRequestProducts;
+		m_callbacksRequestProducts = callbacks;
 	}
 	
 	protected static CallbacksRequestPurchase m_callbacksRequestPurchase = null;
@@ -104,9 +93,9 @@ public class IOuyaActivity
 	{
 		return m_callbacksRequestPurchase;
 	}
-	public static void SetCallbacksRequestPurchase(CallbacksRequestPurchase callbacksRequestPurchase)
+	public static void SetCallbacksRequestPurchase(CallbacksRequestPurchase callbacks)
 	{
-		m_callbacksRequestPurchase = callbacksRequestPurchase;
+		m_callbacksRequestPurchase = callbacks;
 	}
 	
 	protected static CallbacksRequestReceipts m_callbacksRequestReceipts = null;
@@ -114,8 +103,28 @@ public class IOuyaActivity
 	{
 		return m_callbacksRequestReceipts;
 	}
-	public static void SetCallbacksRequestReceipts(CallbacksRequestReceipts callbacksRequestReceipts)
+	public static void SetCallbacksRequestReceipts(CallbacksRequestReceipts callbacks)
 	{
-		m_callbacksRequestReceipts = callbacksRequestReceipts;
+		m_callbacksRequestReceipts = callbacks;
+	}
+	
+	protected static CallbacksOuyaInput m_callbacksOuyaInput = null;
+	public static CallbacksOuyaInput GetCallbacksOuyaInput()
+	{
+		return m_callbacksOuyaInput;
+	}
+	public static void SetCallbacksOuyaInput(CallbacksOuyaInput callbacks)
+	{
+		m_callbacksOuyaInput = callbacks;
+	}
+
+	protected static CallbacksInitOuyaPlugin m_callbacksInitOuyaPlugin = null;
+	public static CallbacksInitOuyaPlugin GetCallbacksInitOuyaPlugin()
+	{
+		return m_callbacksInitOuyaPlugin;
+	}
+	public static void SetCallbacksInitOuyaPlugin(CallbacksInitOuyaPlugin callbacks)
+	{
+		m_callbacksInitOuyaPlugin = callbacks;
 	}
 }

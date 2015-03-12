@@ -18,40 +18,44 @@
 --
 -----------------------------------------------------------------------------------------
 
-local DEVELOPER_ID = "310a8f51-4d6e-4ae5-bda0-b93878e5f5d0";
-
+callbacksInitOuyaPlugin = require "callbacksInitOuyaPlugin"
 globals = require "globals"
 helpers = require "helpers"
 inputs = require "inputs"
+local json = require "json"
 ui = require "ui"
 
-if nil ~= ouyaSDK then
-	print ("LUA ouyaSetDeveloperId (" .. DEVELOPER_ID .. ")");
-	ouyaSDK.ouyaSetDeveloperId(DEVELOPER_ID);
+if nil ~= ouyaSDK and nil ~= ouyaSDK.initOuyaPlugin then
+	local data = {
+	[1] = {
+	    ["key"] = "tv.ouya.developer_id",
+	    ["value"] = "310a8f51-4d6e-4ae5-bda0-b93878e5f5d0"
+	}};
+	local jsonData = json.encode(data);
+	--print (jsonData);
+	ouyaSDK.initOuyaPlugin(callbacksInitOuyaPlugin.onSuccess, callbacksInitOuyaPlugin.onFailure, jsonData);
 end
 
 globals.centerX = display.contentCenterX;
 
 globals.txtHello = display.newText("Hello from Corona SDK", globals.centerX - 500, 200, "Helvetica", 24);
 globals.txtStatus = display.newText("", globals.centerX, 200, "Helvetica", 24);
-globals.txtGamerUUID = display.newText("Gamer UUID: (unknown)", globals.centerX - 300, 240, "Helvetica", 24);
+globals.txtGamerUsername = display.newText("Gamer Username: (unknown)", globals.centerX - 300, 240, "Helvetica", 24);
+globals.txtGamerUUID = display.newText("Gamer UUID: (unknown)", globals.centerX - 300, 270, "Helvetica", 24);
 globals.txtInstructions = display.newText("Use DPAD to switch between buttons | Press O to click the button", globals.centerX - 300, 325, "Helvetica", 24);
 
-globals.btnProducts = helpers.createButton(globals.centerX - 400, 400, 1.5, 0.5, "Get Products", -70, -25, 24);
-globals.btnPurchase = helpers.createButton(globals.centerX - 175, 400, 1.75, 0.5, "Request Purchase", -100, -25, 24);
-globals.btnReceipts = helpers.createButton(globals.centerX + 50, 400, 1.5, 0.5, "Get Receipts", -70, -25, 24);
-globals.btnFetch = helpers.createButton(globals.centerX + 275, 400, 1.75, 0.5, "Fetch Gamer UUID", -100, -25, 24);
-globals.btnPause = helpers.createButton(globals.centerX + 450, 400, 0.75, 0.5, "Pause", -35, -25, 24);
+globals.btnProducts = helpers.createButton(globals.centerX - 400, 400, 1.5, 0.5, "Get Products", 0, 0, 24);
+globals.btnPurchase = helpers.createButton(globals.centerX - 175, 400, 1.75, 0.5, "Request Purchase", 0, 0, 24);
+globals.btnReceipts = helpers.createButton(globals.centerX + 50, 400, 1.5, 0.5, "Get Receipts", 0, 0, 24);
+globals.btnGamerInfo = helpers.createButton(globals.centerX + 275, 400, 1.75, 0.5, "Request Gamer Info", 0, 0, 24);
+globals.btnPause = helpers.createButton(globals.centerX + 450, 400, 0.75, 0.5, "Pause", 0, 0, 24);
 
 globals.btnProducts.btnRight = globals.btnPurchase;
 globals.btnPurchase.btnLeft = globals.btnProducts;
 globals.btnPurchase.btnRight = globals.btnReceipts;
 globals.btnReceipts.btnLeft = globals.btnPurchase;
-globals.btnReceipts.btnRight = globals.btnFetch;
-globals.btnFetch.btnLeft = globals.btnReceipts;
-globals.btnPause.btnLeft = globals.btnFetch;
+globals.btnReceipts.btnRight = globals.btnGamerInfo;
+globals.btnGamerInfo.btnLeft = globals.btnReceipts;
+globals.btnPause.btnLeft = globals.btnGamerInfo;
 
 ui.setButtonFocus (globals.btnProducts);
-
--- Add the key event listener.
-Runtime:addEventListener( "key", inputs.onKeyEvent )

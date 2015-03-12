@@ -19,7 +19,8 @@
 
 #include <string>
 
-class CallbacksFetchGamerUUID;
+class CallbacksInitOuyaPlugin;
+class CallbacksRequestGamerInfo;
 class CallbacksRequestProducts;
 class CallbacksRequestPurchase;
 class CallbacksRequestReceipts;
@@ -40,7 +41,8 @@ namespace OuyaSDK
 
 		void RegisterNativeMethods();
 
-		CallbacksFetchGamerUUID* m_callbacksFetchGamerUUID;
+		CallbacksInitOuyaPlugin* m_callbacksInitOuyaPlugin;
+		CallbacksRequestGamerInfo* m_callbacksRequestGamerInfo;
 		CallbacksRequestProducts* m_callbacksRequestProducts;
 		CallbacksRequestPurchase* m_callbacksRequestPurchase;
 		CallbacksRequestReceipts* m_callbacksRequestReceipts;

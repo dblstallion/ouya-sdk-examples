@@ -25,7 +25,8 @@
         <arguments>
           <argument>
             <kind>1</kind>
-            <string>varPlayer = 3;
+            <string>varPlayer = "3";
+menuDetected = 0;
 </string>
           </argument>
         </arguments>

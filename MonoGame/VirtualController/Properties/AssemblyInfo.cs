@@ -10,8 +10,8 @@ using Android.App;
 [assembly: AssemblyProduct("VirtualController")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyDescription("")]
-[assembly: AssemblyCompany("Microsoft")]
-[assembly: AssemblyCopyright("Copyright © Microsoft 2013")]
+[assembly: AssemblyCompany("")]
+[assembly: AssemblyCopyright("Copyright ©  2014")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
@@ -21,7 +21,7 @@ using Android.App;
 [assembly: ComVisible(false)]
 
 // The following GUID is for the ID of the typelib if this project is exposed to COM
-[assembly: Guid("eb61d50c-c169-462f-b166-fe0d449d18bb")]
+[assembly: Guid("ecd247b6-7126-403e-bbaf-bb69e4b64991")]
 
 // Version information for an assembly consists of the following four values:
 //
