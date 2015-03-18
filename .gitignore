@@ -116,4 +116,7 @@ Html5/Caleb/
 Android/NativeActivityOuyaInput/bin/
 Android/NativeActivityOuyaInput/obj/
 Android/VirtualControllerView/gen/
+build_*_vc11
+build_*_vc12
+build_*_vc12x
 *.suo
