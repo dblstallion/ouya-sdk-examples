@@ -8,6 +8,9 @@ using Android.Util;
 using Android.Views;
 using Android.Widget;
 using Java.IO;
+using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
+using Microsoft.Xna.Framework.Media;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -53,6 +56,8 @@ namespace InAppPurchases
 		// listener for getting receipts
 		private static RequestReceiptsListener sRequestReceiptsListener = null;
 
+		private Game1 mGame = null;
+
         protected override void OnCreate(Bundle bundle)
         {
 			sInstance = this;
@@ -60,19 +65,19 @@ namespace InAppPurchases
             base.OnCreate(bundle);
 
             Game1.Activity = this;
-            var g = new Game1();
-            SetContentView(g.Window);
+			mGame = new Game1();
+			SetContentView(mGame.Window);
 
 			using (var ignore = new TV.Ouya.Sdk.OuyaInputView(this))
 			{
 				// do nothing
 			}
 
-			View content = Game1.Activity.FindViewById (Android.Resource.Id.Content);
+			View content = FindViewById (Android.Resource.Id.Content);
 			if (null != content) {
 				content.KeepScreenOn = true;
 			}
-            g.Run();
+			mGame.Run();
 
 			Bundle developerInfo = new Bundle();
 
@@ -255,6 +260,89 @@ namespace InAppPurchases
 			if (null != sInstance) {
 				sInstance.Finish ();
 			}
+		}
+
+		private String GetStringResource(String name) {
+			Resources resources = Resources;
+			if (null == resources) {
+				return String.Empty;
+			}
+			int id = resources.GetIdentifier (name, "string", PackageName);
+			if (id <= 0) {
+				return "";
+			}
+			return resources.GetString(id);
+		}
+
+		private static Dictionary<string,string> sDebugStrings = new Dictionary<string, string> ();
+
+		public static String GetLocalizedString(String name)
+		{
+			if (null == sInstance) {
+				Log.Error(TAG, string.Format("Activity has not initialized to get resource {0}", name));
+				return "";
+			} else {
+				String result = sInstance.GetStringResource (name);
+				//Log.Info(TAG, string.Format("{0} ==> {1}", name, result));
+				sDebugStrings [result] = name;
+				return result;
+			}
+		}
+
+		public static Vector2 MeasureString(SpriteFont font, string text) {
+			try {
+				return font.MeasureString(text);
+			} catch (Exception) {
+				if (null == text) {
+					Log.Error (TAG, "Failed to measure string == text: null");
+				} else if (sDebugStrings.ContainsKey(text)) {
+					Log.Error (TAG, "Failed to measure string key=" + sDebugStrings[text] + " ==> " + text);
+				} else {
+					Log.Error (TAG, "Failed to measure string text=" + text);
+				}
+				return Vector2.Zero;
+			}
+		}
+
+		public static void DrawString(SpriteBatch spriteBatch, SpriteFont font, string text, Vector2 position, Color color) {
+			try {
+				spriteBatch.DrawString(font, text, position, color);
+			} catch (Exception) {
+				if (null == text) {
+					Log.Error (TAG, "Failed to draw string == text: null");
+				} else if (sDebugStrings.ContainsKey(text)) {
+					Log.Error (TAG, "Failed to draw string key=" + sDebugStrings[text] + " ==> " + text);
+				} else {
+					Log.Error (TAG, "Failed to draw string text=" + text);
+				}
+			}
+		}
+
+		public static void DrawString(SpriteBatch spriteBatch, SpriteFont font, string text, Vector2 position, Color color, float rotation,
+			Vector2 origin, float scale, SpriteEffects spriteEffects, float depth) {
+			try {
+				spriteBatch.DrawString(font, text, position, color, rotation, origin, scale, spriteEffects, depth);
+			} catch (Exception) {
+				if (null == text) {
+					Log.Error (TAG, "Failed to draw string == text: null");
+				} else if (sDebugStrings.ContainsKey(text)) {
+					Log.Error (TAG, "Failed to draw string key=" + sDebugStrings[text] + " ==> " + text);
+				} else {
+					Log.Error (TAG, "Failed to draw string text=" + text);
+				}
+			}
+		}
+
+		protected override void OnPause ()
+		{
+			base.OnPause ();
+			mGame.UninitializeContent ();
+		}
+
+		protected override void OnResume ()
+		{
+			base.OnResume ();
+			mGame.InitializeContent ();
 		}
     }
 }
