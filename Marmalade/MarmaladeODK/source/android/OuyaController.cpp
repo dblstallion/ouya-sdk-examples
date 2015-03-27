@@ -42,13 +42,16 @@ namespace tv_ouya_console_api_OuyaController
 			{
 				__android_log_print(ANDROID_LOG_VERBOSE, LOG_TAG, "Searching for %s", strOuyaControllerClass);
 			}
-			_jcOuyaController = env->FindClass(strOuyaControllerClass);
-			if (_jcOuyaController)
+			jclass localRef = env->FindClass(strOuyaControllerClass);
+			if (localRef)
 			{
 				if (VERBOSE_LOGGING)
 				{
 					__android_log_print(ANDROID_LOG_VERBOSE, LOG_TAG, "Found %s", strOuyaControllerClass);
 				}
+                
+                _jcOuyaController = (jclass)env->NewGlobalRef(localRef);
+                env->DeleteLocalRef(localRef);
 			}
 			else
 			{

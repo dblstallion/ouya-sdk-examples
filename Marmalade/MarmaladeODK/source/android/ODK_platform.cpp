@@ -44,6 +44,8 @@
 #include <android/log.h>
 #define LOG_TAG "ODK_platform.cpp"
 
+#define ENABLE_VERBOSE_LOGGING true
+
 using namespace org_json_JSONObject;
 using namespace org_json_JSONArray;
 using namespace tv_ouya_console_api_OuyaController;
@@ -354,11 +356,11 @@ void OuyaPlugin_asyncOuyaRequestPurchase(const char* purchasable, s3eCallback on
 	g_pluginOuya.AsyncOuyaRequestPurchase(purchasable);
 }
 
-void OuyaPlugin_asyncOuyaRequestReceipts(s3eCallback onSuccess, s3eCallback onFailure, s3eCallback onCancel)
+void OuyaPlugin_asyncOuyaRequestReceipts(s3eCallback onSuccess, s3eCallback onFailure, s3eCallback onCancel, void* userData)
 {
 	IwTrace(ODK, ("ODK_platform: OuyaPlugin_asyncOuyaRequestReceipts"));
 
-	OuyaSDK::CallbackSingleton::GetInstance()->m_callbacksRequestReceipts->RegisterCallbacks(onSuccess, onFailure, onCancel);
+	OuyaSDK::CallbackSingleton::GetInstance()->m_callbacksRequestReceipts->RegisterCallbacks(onSuccess, onFailure, onCancel, userData);
 
 	g_pluginOuya.AsyncOuyaRequestReceipts();
 }
