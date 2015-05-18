@@ -35,7 +35,8 @@ namespace org_json_JSONArray
 				__android_log_print(ANDROID_LOG_VERBOSE, LOG_TAG, "Found %s", strClass);
 #endif
 				_jcJsonArray = (jclass)env->NewGlobalRef(localRef);
-                env->DeleteLocalRef(localRef);
+
+				env->DeleteLocalRef(localRef);
 			}
 			else
 			{

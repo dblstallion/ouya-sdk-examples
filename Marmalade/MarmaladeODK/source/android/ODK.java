@@ -35,8 +35,10 @@ import android.content.Context;
 import android.content.res.AssetManager;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.InputDevice;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
+import android.view.View;
 import com.ideaworks3d.marmalade.LoaderAPI;
 import com.ideaworks3d.marmalade.LoaderActivity;
 import java.io.IOException;
@@ -47,6 +49,8 @@ import tv.ouya.sdk.marmalade.*;
 public class ODK extends LoaderActivity
 {
 	private static final String TAG = ODK.class.getSimpleName();
+
+	private static final boolean sEnableLogging = false;
 
 	// Only use native methods after the native plugin loads
 	private static boolean mNativePluginLoaded = false;
@@ -63,6 +67,19 @@ public class ODK extends LoaderActivity
 
 		OuyaInputMapper.init(this);
     }
+
+	@Override
+	protected void onStart() {
+		super.onStart();
+
+		View content = (View)findViewById(android.R.id.content);
+		if (null != content) {
+			Log.d(TAG, "Disable screensaver" );
+			content.setKeepScreenOn(true);
+		} else {
+			Log.e(TAG, "Content view is missing");
+		}
+	}
 
     @Override
 		protected void onDestroy() {
@@ -108,6 +125,38 @@ public class ODK extends LoaderActivity
 	
 	@Override
     public boolean dispatchKeyEvent(KeyEvent keyEvent) {
+    	if (sEnableLogging) {
+			Log.i(TAG, "dispatchKeyEvent keyCode="+keyEvent.getKeyCode());
+		}
+		InputDevice device = keyEvent.getDevice();
+		if (null != device) {
+			String name = device.getName();
+			if (null != name &&
+				name.equals("aml_keypad")) {
+				switch (keyEvent.getKeyCode()) {
+				case 24:
+					if (sEnableLogging) {
+						Log.i(TAG, "Volume Up detected.");
+					}
+					return false;
+				case 25:
+					if (sEnableLogging) {
+						Log.i(TAG, "Volume Down detected.");
+					}
+					return false;
+				case 66:
+					if (sEnableLogging) {
+						Log.i(TAG, "Remote button detected.");
+					}
+					if (keyEvent.getAction() == KeyEvent.ACTION_DOWN) {
+						onKeyDown(OuyaController.BUTTON_O, keyEvent);
+					} else if (keyEvent.getAction() == KeyEvent.ACTION_UP) {
+						onKeyUp(OuyaController.BUTTON_O, keyEvent);
+					}
+					return false;
+				}
+			}
+		}
 	    if (OuyaInputMapper.shouldHandleInputEvent(keyEvent)) {
 	    	return OuyaInputMapper.dispatchKeyEvent(this, keyEvent);
 	    }

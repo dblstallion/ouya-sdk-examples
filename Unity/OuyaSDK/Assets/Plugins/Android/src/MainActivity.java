@@ -22,9 +22,11 @@ import android.content.*;
 import android.content.res.AssetManager;
 import android.content.res.Configuration;
 import android.graphics.PixelFormat;
+import android.media.AudioManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
+import android.view.InputDevice;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
@@ -44,6 +46,8 @@ public class MainActivity extends Activity
 {
 	private static final String TAG = "MainActivity";
 
+	private static final String PLUGIN_VERSION = "1.2.1494.13";
+
 	private static final boolean sEnableLogging = false;
 
 	protected UnityPlayer mUnityPlayer;		// don't change the name of this variable; referenced from native code
@@ -53,6 +57,8 @@ public class MainActivity extends Activity
 	// Setup activity layout
 	@Override protected void onCreate (Bundle savedInstanceState)
 	{
+		Log.i(TAG, "OuyaUnityPlugin: VERSION="+PLUGIN_VERSION);
+
 		//make activity accessible to Unity
 		IOuyaActivity.SetActivity(this);
 
@@ -96,24 +102,7 @@ public class MainActivity extends Activity
 			Log.d(TAG, "disable screensaver");
 		}
         mInputView.setKeepScreenOn(true);
-
-		keepFocus();
 	}
-
-	private void keepFocus() {
-        final Handler handler = new Handler();
-        handler.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-				if (null != mInputView) {
-					mInputView.requestFocus();
-				}
-				if (!isFinishing()) {
-					keepFocus();
-				}
-            }
-        }, 1000);
-    }
 
 	// Quit Unity
 	@Override protected void onDestroy ()
@@ -201,6 +190,126 @@ public class MainActivity extends Activity
 		if (null != mInputView) {
 			mInputView.requestFocus();
 		}
+	}
+
+	@Override
+    public boolean dispatchGenericMotionEvent(MotionEvent motionEvent) {
+    	if (sEnableLogging) {
+			Log.i(TAG, "dispatchGenericMotionEvent");
+		}
+    	if (null != mInputView) {
+			mInputView.dispatchGenericMotionEvent(motionEvent);
+		}
+		return true;
+    }
+
+	private void raiseVolume() {
+		AudioManager audioMgr = (AudioManager)getSystemService(Context.AUDIO_SERVICE);
+		int stream = AudioManager.STREAM_SYSTEM;
+		int maxVolume = audioMgr.getStreamMaxVolume(stream);
+		int volume = audioMgr.getStreamVolume(stream);
+		volume = Math.min(volume + 1, maxVolume);
+		audioMgr.setStreamVolume(stream, volume, 0);
+	}
+
+	private void lowerVolume() {
+		AudioManager audioMgr = (AudioManager)getSystemService(Context.AUDIO_SERVICE);
+		int stream = AudioManager.STREAM_SYSTEM;
+		int maxVolume = audioMgr.getStreamMaxVolume(stream);
+		int volume = audioMgr.getStreamVolume(stream);
+		volume = Math.max(volume - 1, 0);
+		audioMgr.setStreamVolume(stream, volume, 0);
+	}
+	
+	@Override
+    public boolean dispatchKeyEvent(KeyEvent keyEvent) {
+    	if (sEnableLogging) {
+			Log.i(TAG, "dispatchKeyEvent keyCode="+keyEvent.getKeyCode());
+		}
+		InputDevice device = keyEvent.getDevice();
+		if (null != device) {
+			String name = device.getName();
+			if (null != name &&
+				name.equals("aml_keypad")) {
+				switch (keyEvent.getKeyCode()) {
+				case 24:
+					if (sEnableLogging) {
+						Log.i(TAG, "Volume Up detected.");
+					}
+					//raiseVolume();
+					//return true; //the volume was handled
+					return false; //show the xiaomi volume overlay
+				case 25:
+					if (sEnableLogging) {
+						Log.i(TAG, "Volume Down detected.");
+					}
+					//lowerVolume();
+					//return true; //the volume was handled
+					return false; //show the xiaomi volume overlay
+				case 66:
+					if (sEnableLogging) {
+						Log.i(TAG, "Remote button detected.");
+					}
+					if (null != mInputView) {
+						if (keyEvent.getAction() == KeyEvent.ACTION_DOWN) {
+							mInputView.onKeyDown(OuyaController.BUTTON_O, keyEvent);
+						} else if (keyEvent.getAction() == KeyEvent.ACTION_UP) {
+							mInputView.onKeyUp(OuyaController.BUTTON_O, keyEvent);
+						}
+					}
+					return false;
+				case 4:
+					if (sEnableLogging) {
+						Log.i(TAG, "Remote back button detected.");
+					}
+					if (null != mInputView) {
+						if (keyEvent.getAction() == KeyEvent.ACTION_DOWN) {
+							mInputView.onKeyDown(OuyaController.BUTTON_A, keyEvent);
+						} else if (keyEvent.getAction() == KeyEvent.ACTION_UP) {
+							mInputView.onKeyUp(OuyaController.BUTTON_A, keyEvent);
+						}
+					}
+					return true;
+				}
+			}
+		}
+    	if (null != mInputView) {
+			mInputView.dispatchKeyEvent(keyEvent);
+		}
+		return true;
+    }
+
+	@Override
+	public boolean onGenericMotionEvent(MotionEvent motionEvent) {
+    	if (sEnableLogging) {
+			Log.i(TAG, "onGenericMotionEvent");
+		}
+    	if (null != mInputView) {
+			mInputView.requestFocus();
+		}
+		return true;
+	}
+
+	@Override
+	public boolean onKeyUp(int keyCode, KeyEvent keyEvent) {
+    	if (sEnableLogging) {
+			Log.i(TAG, "onKeyUp");
+		}
+    	if (null != mInputView) {
+			mInputView.requestFocus();
+		}
+		return true;
+	}
+	
+	@Override
+	public boolean onKeyDown(int keyCode, KeyEvent keyEvent) {
+    	if (sEnableLogging) {
+			Log.i(TAG, "onKeyDown");
+		}
+    	if (null != mInputView) {
+			mInputView.requestFocus();
+		}
+		return true;
 	}
 
     @Override
