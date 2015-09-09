@@ -266,7 +266,7 @@ void OuyaPlugin_asyncOuyaRequestPurchase(const char* purchasable, s3eCallback on
     return;
 }
 
-void OuyaPlugin_asyncOuyaRequestReceipts(s3eCallback onSuccess, s3eCallback onFailure, s3eCallback onCancel)
+void OuyaPlugin_asyncOuyaRequestReceipts(s3eCallback onSuccess, s3eCallback onFailure, s3eCallback onCancel, void* userData)
 {
     IwTrace(ODK_VERBOSE, ("calling ODK[10] func: OuyaPlugin_asyncOuyaRequestReceipts"));
 
@@ -277,7 +277,7 @@ void OuyaPlugin_asyncOuyaRequestReceipts(s3eCallback onSuccess, s3eCallback onFa
     s3eDeviceLoaderCallStart(S3E_TRUE, (void*)g_Ext.m_OuyaPlugin_asyncOuyaRequestReceipts);
 #endif
 
-    g_Ext.m_OuyaPlugin_asyncOuyaRequestReceipts(onSuccess, onFailure, onCancel);
+    g_Ext.m_OuyaPlugin_asyncOuyaRequestReceipts(onSuccess, onFailure, onCancel, userData);
 
 #ifdef LOADER_CALL_LOCK
     s3eDeviceLoaderCallDone(S3E_TRUE, (void*)g_Ext.m_OuyaPlugin_asyncOuyaRequestReceipts);

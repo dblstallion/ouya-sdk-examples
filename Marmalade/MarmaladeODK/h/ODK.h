@@ -96,7 +96,7 @@ void OuyaPlugin_asyncOuyaRequestProducts(const char* productsJson, s3eCallback o
 
 void OuyaPlugin_asyncOuyaRequestPurchase(const char* purchasable, s3eCallback onSuccess, s3eCallback onFailure, s3eCallback onCancel);
 
-void OuyaPlugin_asyncOuyaRequestReceipts(s3eCallback onSuccess, s3eCallback onFailure, s3eCallback onCancel);
+void OuyaPlugin_asyncOuyaRequestReceipts(s3eCallback onSuccess, s3eCallback onFailure, s3eCallback onCancel, void* userData);
 
 int OuyaPlugin_JSONObject_Construct();
 

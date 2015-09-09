@@ -15,7 +15,7 @@ typedef       void(*OuyaPlugin_initOuyaPlugin_t)(const char* jsonData, s3eCallba
 typedef       void(*OuyaPlugin_asyncOuyaRequestGamerInfo_t)(s3eCallback onSuccess, s3eCallback onFailure, s3eCallback onCancel);
 typedef       void(*OuyaPlugin_asyncOuyaRequestProducts_t)(const char* productsJson, s3eCallback onSuccess, s3eCallback onFailure, s3eCallback onCancel);
 typedef       void(*OuyaPlugin_asyncOuyaRequestPurchase_t)(const char* purchasable, s3eCallback onSuccess, s3eCallback onFailure, s3eCallback onCancel);
-typedef       void(*OuyaPlugin_asyncOuyaRequestReceipts_t)(s3eCallback onSuccess, s3eCallback onFailure, s3eCallback onCancel);
+typedef       void(*OuyaPlugin_asyncOuyaRequestReceipts_t)(s3eCallback onSuccess, s3eCallback onFailure, s3eCallback onCancel, void* userData);
 typedef        int(*OuyaPlugin_JSONObject_Construct_t)();
 typedef       void(*OuyaPlugin_JSONObject_Put_t)(int jsonObject, const char* name, const char* value);
 typedef const char*(*OuyaPlugin_JSONObject_ToString_t)(int jsonObject);
