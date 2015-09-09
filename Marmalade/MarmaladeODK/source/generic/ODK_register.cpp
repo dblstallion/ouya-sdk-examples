@@ -84,10 +84,10 @@ static void OuyaPlugin_asyncOuyaRequestPurchase_wrap(const char* purchasable, s3
     s3eEdkThreadRunOnOS((s3eEdkThreadFunc)OuyaPlugin_asyncOuyaRequestPurchase, 4, purchasable, onSuccess, onFailure, onCancel);
 }
 
-static void OuyaPlugin_asyncOuyaRequestReceipts_wrap(s3eCallback onSuccess, s3eCallback onFailure, s3eCallback onCancel, void* userData)
+static void OuyaPlugin_asyncOuyaRequestReceipts_wrap(s3eCallback onSuccess, s3eCallback onFailure, s3eCallback onCancel)
 {
     IwTrace(ODK_VERBOSE, ("calling ODK func on main thread: OuyaPlugin_asyncOuyaRequestReceipts"));
-    s3eEdkThreadRunOnOS((s3eEdkThreadFunc)OuyaPlugin_asyncOuyaRequestReceipts, 4, onSuccess, onFailure, onCancel, userData);
+    s3eEdkThreadRunOnOS((s3eEdkThreadFunc)OuyaPlugin_asyncOuyaRequestReceipts, 3, onSuccess, onFailure, onCancel);
 }
 
 static int OuyaPlugin_JSONObject_Construct_wrap()
@@ -127,22 +127,39 @@ static const char* OuyaPlugin_JSONArray_ToString_wrap(int jsonArray)
 }
 
 #define OuyaPlugin_getAxis OuyaPlugin_getAxis_wrap
+
 #define OuyaPlugin_isPressed OuyaPlugin_isPressed_wrap
+
 #define OuyaPlugin_isPressedDown OuyaPlugin_isPressedDown_wrap
+
 #define OuyaPlugin_isPressedUp OuyaPlugin_isPressedUp_wrap
+
 #define OuyaPlugin_clearButtonStates OuyaPlugin_clearButtonStates_wrap
+
 #define OuyaPlugin_getDeviceName OuyaPlugin_getDeviceName_wrap
+
 #define OuyaPlugin_initOuyaPlugin OuyaPlugin_initOuyaPlugin_wrap
+
 #define OuyaPlugin_asyncOuyaRequestGamerInfo OuyaPlugin_asyncOuyaRequestGamerInfo_wrap
+
 #define OuyaPlugin_asyncOuyaRequestProducts OuyaPlugin_asyncOuyaRequestProducts_wrap
+
 #define OuyaPlugin_asyncOuyaRequestPurchase OuyaPlugin_asyncOuyaRequestPurchase_wrap
+
 #define OuyaPlugin_asyncOuyaRequestReceipts OuyaPlugin_asyncOuyaRequestReceipts_wrap
+
 #define OuyaPlugin_JSONObject_Construct OuyaPlugin_JSONObject_Construct_wrap
+
 #define OuyaPlugin_JSONObject_Put OuyaPlugin_JSONObject_Put_wrap
+
 #define OuyaPlugin_JSONObject_ToString OuyaPlugin_JSONObject_ToString_wrap
+
 #define OuyaPlugin_JSONArray_Construct OuyaPlugin_JSONArray_Construct_wrap
+
 #define OuyaPlugin_JSONArray_Put OuyaPlugin_JSONArray_Put_wrap
+
 #define OuyaPlugin_JSONArray_ToString OuyaPlugin_JSONArray_ToString_wrap
+
 
 #endif
 

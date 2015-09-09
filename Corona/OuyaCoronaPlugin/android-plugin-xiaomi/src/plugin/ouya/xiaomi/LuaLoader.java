@@ -1,7 +1,6 @@
 package plugin.ouya.xiaomi;
 
 import android.app.Activity;
-import android.content.Context;
 import android.content.Intent;
 import android.content.res.AssetManager;
 import android.util.Log;
@@ -13,7 +12,7 @@ import tv.ouya.sdk.corona.*;
 
 public class LuaLoader implements com.naef.jnlua.JavaFunction {
 	
-	private final String LOG_TAG = LuaLoader.class.getSimpleName();
+	private static final String LOG_TAG = LuaLoader.class.getSimpleName();
 		
 	com.naef.jnlua.NamedJavaFunction[] luaFunctions = null;
 	
@@ -56,6 +55,7 @@ public class LuaLoader implements com.naef.jnlua.JavaFunction {
 		
 		// Add a module named "myTests" to Lua having the following functions.
 		luaFunctions = new com.naef.jnlua.NamedJavaFunction[] {
+			new LuaOuyaIsAvailable(),
 			new AsyncLuaOuyaGetControllerName(),
 			new AsyncLuaOuyaInitInput(),
 			new AsyncLuaInitOuyaPlugin(),
@@ -69,7 +69,7 @@ public class LuaLoader implements com.naef.jnlua.JavaFunction {
 		luaState.register("ouyaSDK", luaFunctions);
 		luaState.pop(1);
 		
-		initializeOUYA();
+		//initializeOUYA();
 		
 		//Log.i(LOG_TAG, "Named functions for lua registered.");
 		//Log.i(LOG_TAG, "****\n*****\n****\n****\n****\n");
@@ -174,14 +174,14 @@ public class LuaLoader implements com.naef.jnlua.JavaFunction {
 	private void initializeOUYA() {
 		
 		Log.i(LOG_TAG, "Initializing OUYA...");
-		
-		Log.i(LOG_TAG, "Get application context...");
-		Context context = com.ansca.corona.CoronaEnvironment.getApplicationContext();
-		
+
+		Log.i(LOG_TAG, "Get activity from Corona Environment...");
+		final Activity activity = CoronaEnvironment.getCoronaActivity();
+				
 		Log.i(LOG_TAG, "Load signing key...");
 		// load the application key from assets
 		try {
-			AssetManager assetManager = context.getAssets();
+			AssetManager assetManager = activity.getAssets();
 			InputStream inputStream = assetManager.open("key.der", AssetManager.ACCESS_BUFFER);
 			byte[] applicationKey = new byte[inputStream.available()];
 			inputStream.read(applicationKey);
@@ -196,10 +196,7 @@ public class LuaLoader implements com.naef.jnlua.JavaFunction {
 		Log.i(LOG_TAG, "Initialize controller...");
 		
 		// Init the controller
-		OuyaController.init(context);
-			
-		Log.i(LOG_TAG, "Get activity from Corona Environment...");
-		final Activity activity = CoronaEnvironment.getCoronaActivity();
+		OuyaController.init(activity);
 		
 		//make activity accessible to Unity
 		IOuyaActivity.SetActivity(activity);

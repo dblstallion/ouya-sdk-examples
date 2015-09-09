@@ -154,46 +154,6 @@ namespace InAppPurchases
 			};
         }
 
-		// Called from Activity onResume
-		public void InitializeContent() {
-			LoadContent ();
-		}
-
-		// Called from Activity onResume
-		public void UninitializeContent() {
-			UnloadContent ();
-		}
-
-		protected override void UnloadContent ()
-		{
-			if (null != m_activeButton) {
-				m_activeButton.Dispose ();
-				m_activeButton = null;
-			}
-
-			if (null != m_inactiveButton) {
-				m_inactiveButton.Dispose ();
-				m_inactiveButton = null;
-			}
-
-			/*
-			if (null != m_spriteBatch) {
-				m_spriteBatch.Dispose ();
-				m_spriteBatch = null;
-			}
-
-			if (null != m_font) {
-				m_font = null;
-			}
-			*/
-
-			//Content.Unload ();
-
-			//spriteBatch.Dispose ();
-
-			base.UnloadContent ();
-		}
-
 		Texture2D GetAssetTexture(String texture) {
 
 			try {
@@ -233,11 +193,11 @@ namespace InAppPurchases
 			// TODO: use this.Content to load your game content here
 			m_font = Content.Load<SpriteFont> (Activity1.GetLocalizedString ("FontName"));
 
-			//m_inactiveButton = Content.Load<Texture2D> ("ButtonInactive.png");
-			//m_activeButton = Content.Load<Texture2D> ("ButtonActive.png");
+			m_inactiveButton = Content.Load<Texture2D> ("Graphics/ButtonInactive");
+			m_activeButton = Content.Load<Texture2D> ("Graphics/ButtonActive");
 
-			m_inactiveButton = GetAssetTexture ("ButtonInactive.png");
-			m_activeButton = GetAssetTexture ("ButtonActive.png");
+			//m_inactiveButton = GetAssetTexture ("ButtonInactive.png");
+			//m_activeButton = GetAssetTexture ("ButtonActive.png");
 		}
 
 		public class CustomRequestGamerInfoListener : RequestGamerInfoListener
@@ -425,11 +385,29 @@ namespace InAppPurchases
 
 			m_spriteBatch.Begin();
 
-			Activity1.DrawString(m_spriteBatch, m_font, string.Format("Hello from MonoGame! {0} | {1}",
-				Activity1._ouyaFacade.IsRunningOnOUYAHardware ? "(Running on OUYA)" : "Not Running on OUYA",
-                m_debugText), new Vector2(100, 100), Color.White);
+            if (Activity1._ouyaFacade.IsRunningOnOUYASupportedHardware)
+            {
+                OuyaFacade.DeviceHardware deviceHardware = Activity1._ouyaFacade.GetDeviceHardware();
+                if (null == deviceHardware)
+                {
+                    Activity1.DrawString(m_spriteBatch, m_font, string.Format("Hello from MonoGame! Running on null device | {0}",
+                        m_debugText), new Vector2(100, 100), Color.White);
+                }
+                else
+                {
+                    Activity1.DrawString(m_spriteBatch, m_font, string.Format("Hello from MonoGame! Running on '{0}' device enum '{1}' | {2}",
+                        deviceHardware.DeviceName(),
+                        deviceHardware.DeviceEnum(),
+                        m_debugText), new Vector2(100, 100), Color.White);
+                }
+            }
+            else
+            {
+                Activity1.DrawString(m_spriteBatch, m_font, string.Format("Hello from MonoGame! Not Running on OUYA Supported Hardware | {0}",
+                    m_debugText), new Vector2(100, 100), Color.White);
+            }
 
-			Activity1.DrawString(m_spriteBatch, m_font, "Use DPAD to switch between buttons | Press O to click the button", new Vector2(500, 170), Color.Orange);
+            Activity1.DrawString(m_spriteBatch, m_font, "Use DPAD to switch between buttons | Press O to click the button", new Vector2(500, 170), Color.Orange);
             foreach (ButtonSprite button in m_buttons)
             {
 				button.Draw(m_spriteBatch, m_font, m_activeButton, m_inactiveButton);

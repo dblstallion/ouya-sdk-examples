@@ -96,7 +96,7 @@ void OuyaPlugin_asyncOuyaRequestProducts(const char* productsJson, s3eCallback o
 
 void OuyaPlugin_asyncOuyaRequestPurchase(const char* purchasable, s3eCallback onSuccess, s3eCallback onFailure, s3eCallback onCancel);
 
-void OuyaPlugin_asyncOuyaRequestReceipts(s3eCallback onSuccess, s3eCallback onFailure, s3eCallback onCancel, void* userData);
+void OuyaPlugin_asyncOuyaRequestReceipts(s3eCallback onSuccess, s3eCallback onFailure, s3eCallback onCancel);
 
 int OuyaPlugin_JSONObject_Construct();
 
@@ -110,6 +110,8 @@ void OuyaPlugin_JSONArray_Put(int jsonArray, int index, int jsonObject);
 
 const char* OuyaPlugin_JSONArray_ToString(int jsonArray);
 
+// \cond HIDDEN_DEFINES
 S3E_END_C_DECL
+// \endcond
 
 #endif /* !S3E_EXT_ODK_H */

@@ -1,7 +1,10 @@
 package tv.ouya.examples.android.virtualcontroller;
 
+import android.content.res.AssetManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
+import android.util.SparseArray;
 import android.view.InputDevice;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
@@ -10,12 +13,14 @@ import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
-import tv.ouya.console.api.DebugInput;
-import tv.ouya.console.api.OuyaActivity;
-import tv.ouya.console.api.OuyaController;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.HashMap;
+
+import tv.ouya.console.api.*;
 import tv.ouya.console.api.OuyaController.ButtonData;
-import tv.ouya.console.api.OuyaFacade;
-import tv.ouya.console.api.OuyaInputMapper;
+import tv.ouya.sdk.*;
 
 public class MainActivity extends OuyaActivity {
 	
@@ -26,6 +31,7 @@ public class MainActivity extends OuyaActivity {
 	private TextView txtSystem = null;
 	private TextView txtController = null;
 	private TextView txtKeyCode = null;
+	private TextView txtKeyCode2 = null;
 	private ImageView imgControllerO = null;
 	private ImageView imgControllerU = null;
 	private ImageView imgControllerY = null;
@@ -36,12 +42,20 @@ public class MainActivity extends OuyaActivity {
 	private ImageView imgControllerR1 = null;
 	private ImageView imgControllerR2 = null;
 	private ImageView imgControllerR3 = null;
+	private ImageView imgControllerDpad = null;
 	private ImageView imgControllerDpadDown = null;
 	private ImageView imgControllerDpadLeft = null;
 	private ImageView imgControllerDpadRight = null;
 	private ImageView imgControllerDpadUp = null;
+	private ImageView imgControllerBack = null;
+	private ImageView imgControllerHome = null;
 	private ImageView imgControllerMenu = null;
-	private ImageView imgButtonMenu = null;
+	private ImageView imgControllerNext = null;
+	private ImageView imgControllerPower = null;
+	private ImageView imgControllerPrevious = null;
+	private ImageView imgControllerLS = null;
+	private ImageView imgControllerRS = null;
+	private ImageView imgButtonMenu = null;	
 	private ImageView imgButtonA = null;
 	private ImageView imgDpadDown = null;
 	private ImageView imgDpadLeft = null;
@@ -65,6 +79,20 @@ public class MainActivity extends OuyaActivity {
 	
 	private OuyaFacade mOuyaFacade = null;
 	
+	private static SparseArray<HashMap<Integer, Float>> sAxisValues = new SparseArray<HashMap<Integer, Float>>();
+	private static SparseArray<HashMap<Integer, Boolean>> sButtonValues = new SparseArray<HashMap<Integer, Boolean>>();
+	
+	static {
+		for (int index = 0; index < OuyaController.MAX_CONTROLLERS; ++index) {
+			HashMap<Integer, Float> axisMap = new HashMap<Integer, Float>();
+			axisMap.put(MotionEvent.AXIS_HAT_X, 0f);
+			axisMap.put(MotionEvent.AXIS_HAT_Y, 0f);
+			sAxisValues.put(index, axisMap);
+			HashMap<Integer, Boolean> buttonMap = new HashMap<Integer, Boolean>();
+			sButtonValues.put(index, buttonMap);
+		}
+    }
+	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		
@@ -74,13 +102,38 @@ public class MainActivity extends OuyaActivity {
 		ViewGroup mainLayout = (ViewGroup)this.findViewById(android.R.id.content);		
 		mainLayout.setOnClickListener(mClickListener);
 		
+		mainLayout.setKeepScreenOn(true);
+		
+		byte[] applicationKey = null;
+		
+		// load the application key from assets
+		try {
+			AssetManager assetManager = getAssets();
+			InputStream inputStream = assetManager.open("key.der", AssetManager.ACCESS_BUFFER);
+			applicationKey = new byte[inputStream.available()];
+			inputStream.read(applicationKey);
+			inputStream.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		
+		if (null == applicationKey) {
+			Log.e(TAG, "Failed to load signing key");
+			return;
+		}
+		
 		mOuyaFacade = OuyaFacade.getInstance();
-		mOuyaFacade.init(this, "310a8f51-4d6e-4ae5-bda0-b93878e5f5d0");
+		
+		Bundle developerInfo = new Bundle();
+		developerInfo.putString(OuyaFacade.OUYA_DEVELOPER_ID, "310a8f51-4d6e-4ae5-bda0-b93878e5f5d0");
+		developerInfo.putByteArray(OuyaFacade.OUYA_DEVELOPER_PUBLIC_KEY, applicationKey);
+		mOuyaFacade.init(this, developerInfo);
 		
 		txtSystem = (TextView)findViewById(R.id.txtSystem);
 		txtController = (TextView)findViewById(R.id.txtController);
 		imgButtonMenu = (ImageView)findViewById(R.id.imgButtonMenu);
 		txtKeyCode = (TextView)findViewById(R.id.txtKeyCode);
+		txtKeyCode2 = (TextView)findViewById(R.id.txtKeyCode2);
 		imgControllerO = (ImageView)findViewById(R.id.imgControllerO);
 		imgControllerU = (ImageView)findViewById(R.id.imgControllerU);
 		imgControllerY = (ImageView)findViewById(R.id.imgControllerY);
@@ -91,11 +144,19 @@ public class MainActivity extends OuyaActivity {
 		imgControllerR1 = (ImageView)findViewById(R.id.imgControllerR1);
 		imgControllerR2 = (ImageView)findViewById(R.id.imgControllerR2);
 		imgControllerR3 = (ImageView)findViewById(R.id.imgControllerR3);
+		imgControllerDpad = (ImageView)findViewById(R.id.imgControllerDpad);
 		imgControllerDpadDown = (ImageView)findViewById(R.id.imgControllerDpadDown);
 		imgControllerDpadLeft = (ImageView)findViewById(R.id.imgControllerDpadLeft);
 		imgControllerDpadRight = (ImageView)findViewById(R.id.imgControllerDpadRight);
 		imgControllerDpadUp = (ImageView)findViewById(R.id.imgControllerDpadUp);
+		imgControllerBack = (ImageView)findViewById(R.id.imgControllerBack);
+		imgControllerHome = (ImageView)findViewById(R.id.imgControllerHome);
 		imgControllerMenu = (ImageView)findViewById(R.id.imgControllerMenu);
+		imgControllerNext = (ImageView)findViewById(R.id.imgControllerNext);
+		imgControllerPrevious = (ImageView)findViewById(R.id.imgControllerPrevious);
+		imgControllerPower = (ImageView)findViewById(R.id.imgControllerPower);
+		imgControllerLS = (ImageView)findViewById(R.id.imgControllerLS);
+		imgControllerRS = (ImageView)findViewById(R.id.imgControllerRS);
 		imgButtonA = (ImageView)findViewById(R.id.imgButtonA);
 		imgDpadDown = (ImageView)findViewById(R.id.imgDpadDown);
 		imgDpadLeft = (ImageView)findViewById(R.id.imgDpadLeft);
@@ -153,7 +214,7 @@ public class MainActivity extends OuyaActivity {
 	@Override
 	protected void onStart() {
 		super.onStart();
-		txtSystem.setText("Brand=" + android.os.Build.BRAND + " Model=" + android.os.Build.MODEL +
+		txtSystem.setText("Brand=" + android.os.Build.BRAND + " Model=" + android.os.Build.MODEL + " Device=" + Build.DEVICE +
 				" Version=" + android.os.Build.VERSION.SDK_INT +
 				" isRunningOnOUYASupportedHardware="+mOuyaFacade.isRunningOnOUYASupportedHardware());
 		
@@ -167,11 +228,19 @@ public class MainActivity extends OuyaActivity {
 		setDrawable(imgControllerR1, OuyaController.BUTTON_R1);
 		setDrawable(imgControllerR2, OuyaController.BUTTON_R2);
 		setDrawable(imgControllerR3, OuyaController.BUTTON_R3);
+		setDrawable(imgControllerDpad, OuyaController.BUTTON_DPAD);
 		setDrawable(imgControllerDpadDown, OuyaController.BUTTON_DPAD_DOWN);
 		setDrawable(imgControllerDpadLeft, OuyaController.BUTTON_DPAD_LEFT);
 		setDrawable(imgControllerDpadRight, OuyaController.BUTTON_DPAD_RIGHT);
 		setDrawable(imgControllerDpadUp, OuyaController.BUTTON_DPAD_UP);
+		setDrawable(imgControllerBack, KeyEvent.KEYCODE_BACK);
+		setDrawable(imgControllerHome, OuyaController.BUTTON_HOME);
 		setDrawable(imgControllerMenu, OuyaController.BUTTON_MENU);
+		setDrawable(imgControllerNext, KeyEvent.KEYCODE_BUTTON_START);
+		setDrawable(imgControllerPower, KeyEvent.KEYCODE_BUTTON_MODE);
+		setDrawable(imgControllerPrevious, KeyEvent.KEYCODE_BUTTON_SELECT);
+		setDrawable(imgControllerLS, OuyaController.AXIS_LS_X);
+		setDrawable(imgControllerRS, OuyaController.AXIS_RS_X);
 	}
 	
 	@Override
@@ -190,9 +259,35 @@ public class MainActivity extends OuyaActivity {
 	
 	private void setDrawable(ImageView imageView, int keyCode) {
 		ButtonData data = OuyaController.getButtonData(keyCode);
-		if (null != data) {
-			imageView.setImageDrawable(data.buttonDrawable);
+		if (null == data) {
+			Log.e(TAG, "Button Data is null keycode="+keyCode+" name="+DebugInput.debugGetButtonName(keyCode));
+			return;
 		}
+
+		if (null == data.buttonDrawable) {
+			Log.e(TAG, "Button Drawable is null keycode="+keyCode+" name="+DebugInput.debugGetButtonName(keyCode));
+			return;
+		}
+
+		Log.i(TAG, "Button name="+data.buttonName);
+		if (null == imageView) {
+			Log.e(TAG, "Button ImageView is null keycode="+keyCode+" name="+DebugInput.debugGetButtonName(keyCode));
+			return;
+		}
+
+		imageView.setImageDrawable(data.buttonDrawable);
+	}
+	
+	@Override
+	public boolean dispatchGenericMotionEvent(MotionEvent motionEvent) {
+		if (null != txtKeyCode) {
+			InputDevice device = motionEvent.getDevice();
+			if (null != device) {
+				txtKeyCode.setText("Original MotionEvent device=" + device.getName());
+			}
+		}
+		//DebugInput.debugMotionEvent(motionEvent);		
+		return super.dispatchGenericMotionEvent(motionEvent);
 	}
 
 	@Override
@@ -208,16 +303,68 @@ public class MainActivity extends OuyaActivity {
 		return super.dispatchKeyEvent(keyEvent);
 	}
 	
-	@Override
-	public boolean dispatchGenericMotionEvent(MotionEvent motionEvent) {
-		DebugInput.debugMotionEvent(motionEvent);
-		return super.dispatchGenericMotionEvent(motionEvent);
+	void updateDPad(int playerNum) {
+		if (null == sButtonValues.get(playerNum).get(OuyaController.BUTTON_DPAD_LEFT) &&
+			null == sButtonValues.get(playerNum).get(OuyaController.BUTTON_DPAD_RIGHT)) {
+			float dpadX = sAxisValues.get(playerNum).get(MotionEvent.AXIS_HAT_X);
+			if (dpadX > 0.25f) {
+		    	imgDpadRight.setVisibility(View.VISIBLE);
+		    } else {
+		    	imgDpadRight.setVisibility(View.INVISIBLE);
+		    }		    
+		    if (dpadX < -0.25f) {
+		    	imgDpadLeft.setVisibility(View.VISIBLE);
+		    } else {
+		    	imgDpadLeft.setVisibility(View.INVISIBLE);
+		    }
+		}
+		
+		if (null == sButtonValues.get(playerNum).get(OuyaController.BUTTON_DPAD_DOWN) &&
+			null == sButtonValues.get(playerNum).get(OuyaController.BUTTON_DPAD_UP)) {	    
+		    float dpadY = sAxisValues.get(playerNum).get(MotionEvent.AXIS_HAT_Y);	    
+		    if (dpadY > 0.25f) {
+		    	imgDpadDown.setVisibility(View.VISIBLE);
+		    } else {
+		    	imgDpadDown.setVisibility(View.INVISIBLE);
+		    }
+		    
+		    if (dpadY < -0.25f) {
+		    	imgDpadUp.setVisibility(View.VISIBLE);
+		    } else {
+		    	imgDpadUp.setVisibility(View.INVISIBLE);
+		    }
+		}
 	}
 	
 	@Override
 	public boolean onGenericMotionEvent(MotionEvent motionEvent) {
 		//Log.i(TAG, "onGenericMotionEvent");
-		DebugInput.debugOuyaMotionEvent(motionEvent);
+		//DebugInput.debugOuyaMotionEvent(motionEvent);
+		
+		int playerNum = 0;
+		if (null != txtKeyCode2) {
+			InputDevice device = motionEvent.getDevice();
+			if (null != device) {
+				txtKeyCode.setText("Original MotionEvent device=" + device.getName());
+				OuyaController controller = OuyaController.getControllerByDeviceId(device.getId());
+				if (null == controller) {
+					txtKeyCode2.setText("Remapped MotionEvent device=unknown");
+				} else {
+					playerNum = controller.getPlayerNum();
+					txtKeyCode2.setText("Remapped MotionEvent device=" + controller.getDeviceName()+" playerNum="+controller.getPlayerNum());
+				}
+			}
+		}
+		if (playerNum < 0 || playerNum >= OuyaController.MAX_CONTROLLERS) {
+			Log.e(TAG, "PlayerNum is not assigned!");
+			playerNum = 0;
+		}
+		
+		float dpadX = motionEvent.getAxisValue(MotionEvent.AXIS_HAT_X);
+		float dpadY = motionEvent.getAxisValue(MotionEvent.AXIS_HAT_Y);
+		sAxisValues.get(playerNum).put(MotionEvent.AXIS_HAT_X, dpadX);
+		sAxisValues.get(playerNum).put(MotionEvent.AXIS_HAT_Y, dpadY);
+		updateDPad(playerNum);
 		
 		float lsX = motionEvent.getAxisValue(OuyaController.AXIS_LS_X);
 	    float lsY = motionEvent.getAxisValue(OuyaController.AXIS_LS_Y);
@@ -258,127 +405,199 @@ public class MainActivity extends OuyaActivity {
 	    	imgRightTrigger.setVisibility(View.INVISIBLE);
 	    }
 	    
-		return true;
+		return false;
 	}
-
+	
 	@Override
 	public boolean onKeyDown(int keyCode, KeyEvent keyEvent) {
-		//Log.i(TAG, "onKeyDown");
+		Log.i(TAG, "onKeyDown keyCode="+keyCode+" source="+keyEvent.getSource());
+		
+		if (keyEvent.getSource() == InputDevice.SOURCE_JOYSTICK) {
+			return false;
+		}
 		
 		OuyaController controller = OuyaController.getControllerByDeviceId(keyEvent.getDeviceId());
 		if (null != controller) {
-			txtController.setText("Remapped onKeyDown device=" + controller.getDeviceName() + " KeyCode=(" + keyCode + ") "
+			txtKeyCode2.setText("Remapped onKeyDown device=" + controller.getDeviceName() + " KeyCode=(" + keyCode + ") "
+					+ DebugInput.debugGetButtonName(keyCode) + " playerNum="+controller.getPlayerNum());
+		} else {
+			txtKeyCode2.setText("Remapped onKeyDown device=unknown KeyCode=(" + keyCode + ") "
 					+ DebugInput.debugGetButtonName(keyCode));
 		}
 		
-		//Log.i(TAG, "KeyDown="+keyCode);
+		int playerNum = OuyaController.getPlayerNumByDeviceId(keyEvent.getDeviceId());	    
+	    if (playerNum < 0 || playerNum >= OuyaController.MAX_CONTROLLERS) {
+	    	Log.e(TAG, "PlayerNum is not assigned!");
+	    	playerNum = 0;
+	    }
 		
 		switch (keyCode)
 		{
 		case OuyaController.BUTTON_L1:
 			imgLeftBumper.setVisibility(View.VISIBLE);
-			return true;
+			break;
+		case OuyaController.BUTTON_L2:
+			imgLeftTrigger.setVisibility(View.VISIBLE);
+			break;
 		case OuyaController.BUTTON_L3:
 			imgLeftStick.setVisibility(View.INVISIBLE);
 			imgLeftThumb.setVisibility(View.VISIBLE);
-			return true;
+			break;
 		case OuyaController.BUTTON_R1:
 			imgRightBumper.setVisibility(View.VISIBLE);
-			return true;
+			break;
+		case OuyaController.BUTTON_R2:
+			imgRightTrigger.setVisibility(View.VISIBLE);
+			break;
 		case OuyaController.BUTTON_R3:
 			imgRightStick.setVisibility(View.INVISIBLE);
 			imgRightThumb.setVisibility(View.VISIBLE);
-			return true;
+			break;
 		case OuyaController.BUTTON_O:
 			imgButtonO.setVisibility(View.VISIBLE);
-			return true;
+			break;
 		case OuyaController.BUTTON_U:
 			imgButtonU.setVisibility(View.VISIBLE);
-			return true;
+			break;
 		case OuyaController.BUTTON_Y:
 			imgButtonY.setVisibility(View.VISIBLE);
-			return true;
+			break;
 		case OuyaController.BUTTON_A:
 			imgButtonA.setVisibility(View.VISIBLE);
-			return true;
+			break;
 		case OuyaController.BUTTON_DPAD_DOWN:
-			imgDpadDown.setVisibility(View.VISIBLE);
-			return true;
+			if (keyEvent.getSource() == InputDevice.SOURCE_JOYSTICK ) {
+				updateDPad(playerNum);
+			} else {
+				sButtonValues.get(playerNum).put(OuyaController.BUTTON_DPAD_DOWN, true);
+				imgDpadDown.setVisibility(View.VISIBLE);
+			}
+			break;
 		case OuyaController.BUTTON_DPAD_LEFT:
-			imgDpadLeft.setVisibility(View.VISIBLE);
-			return true;
+			if (keyEvent.getSource() == InputDevice.SOURCE_JOYSTICK ) {
+				updateDPad(playerNum);
+			} else {
+				sButtonValues.get(playerNum).put(OuyaController.BUTTON_DPAD_LEFT, true);
+				imgDpadLeft.setVisibility(View.VISIBLE);
+			}
+			break;
 		case OuyaController.BUTTON_DPAD_RIGHT:
-			imgDpadRight.setVisibility(View.VISIBLE);
-			return true;
+			if (keyEvent.getSource() == InputDevice.SOURCE_JOYSTICK ) {
+				updateDPad(playerNum);
+			} else {
+				sButtonValues.get(playerNum).put(OuyaController.BUTTON_DPAD_RIGHT, true);
+				imgDpadRight.setVisibility(View.VISIBLE);
+			}
+			break;
 		case OuyaController.BUTTON_DPAD_UP:
-			imgDpadUp.setVisibility(View.VISIBLE);
-			return true;
+			if (keyEvent.getSource() == InputDevice.SOURCE_JOYSTICK ) {
+				updateDPad(playerNum);
+			} else {
+				sButtonValues.get(playerNum).put(OuyaController.BUTTON_DPAD_UP, true);
+				imgDpadUp.setVisibility(View.VISIBLE);
+			}
+			break;
 		case OuyaController.BUTTON_MENU:
 			imgButtonMenu.setVisibility(View.VISIBLE);
 			mMenuDetected = System.nanoTime() + 1000000000;
-			return true;
+			break;
+		default:
+			Log.i(TAG, "Unrecognized KeyDown="+keyCode);
+			break;
 		}
-		
-		Log.i(TAG, "Unrecognized KeyDown="+keyCode);
 		
 		return true;
 	}
 
 	@Override
 	public boolean onKeyUp(int keyCode, KeyEvent keyEvent) {
-		//Log.i(TAG, "onKeyUp");
+		Log.i(TAG, "onKeyUp keyCode="+keyCode+" source="+keyEvent.getSource());
+		
+		if (keyEvent.getSource() == InputDevice.SOURCE_JOYSTICK) {
+			return false;
+		}
 		
 		OuyaController controller = OuyaController.getControllerByDeviceId(keyEvent.getDeviceId());
 		if (null != controller) {
-			txtController.setText("Remapped onKeyUp device=" + controller.getDeviceName() + " KeyCode=(" + keyCode + ") "
-					+ DebugInput.debugGetButtonName(keyCode));
+			txtKeyCode2.setText("Remapped onKeyUp device=" + controller.getDeviceName() + " KeyCode=(" + keyCode + ") "
+					+ DebugInput.debugGetButtonName(keyCode) + " playerNum="+controller.getPlayerNum());
 		}
 		
-		//Log.i(TAG, "KeyUp="+keyCode);
+		int playerNum = OuyaController.getPlayerNumByDeviceId(keyEvent.getDeviceId());	    
+	    if (playerNum < 0 || playerNum >= OuyaController.MAX_CONTROLLERS) {
+	    	Log.e(TAG, "PlayerNum is not assigned!");
+	    	playerNum = 0;
+	    }
 		
 		switch (keyCode)
 		{
 		case OuyaController.BUTTON_L1:
 			imgLeftBumper.setVisibility(View.INVISIBLE);
-			return true;
+			break;
+		case OuyaController.BUTTON_L2:
+			imgLeftTrigger.setVisibility(View.INVISIBLE);
+			break;
 		case OuyaController.BUTTON_L3:
 			imgLeftStick.setVisibility(View.VISIBLE);
 			imgLeftThumb.setVisibility(View.INVISIBLE);
-			return true;
+			break;
 		case OuyaController.BUTTON_R1:
 			imgRightBumper.setVisibility(View.INVISIBLE);
-			return true;
+			break;
+		case OuyaController.BUTTON_R2:
+			imgRightTrigger.setVisibility(View.INVISIBLE);
+			break;
 		case OuyaController.BUTTON_R3:
 			imgRightStick.setVisibility(View.VISIBLE);
 			imgRightThumb.setVisibility(View.INVISIBLE);
-			return true;
+			break;
 		case OuyaController.BUTTON_O:
 			imgButtonO.setVisibility(View.INVISIBLE);
-			return true;
+			break;
 		case OuyaController.BUTTON_U:
 			imgButtonU.setVisibility(View.INVISIBLE);
-			return true;
+			break;
 		case OuyaController.BUTTON_Y:
 			imgButtonY.setVisibility(View.INVISIBLE);
-			return true;
+			break;
 		case OuyaController.BUTTON_A:
 			imgButtonA.setVisibility(View.INVISIBLE);
-			return true;
+			break;
 		case OuyaController.BUTTON_DPAD_DOWN:
-			imgDpadDown.setVisibility(View.INVISIBLE);
-			return true;
+			if (keyEvent.getSource() == InputDevice.SOURCE_JOYSTICK ) {
+				updateDPad(playerNum);
+			} else {
+				sButtonValues.get(playerNum).put(OuyaController.BUTTON_DPAD_DOWN, false);
+				imgDpadDown.setVisibility(View.INVISIBLE);
+			}
+			break;
 		case OuyaController.BUTTON_DPAD_LEFT:
-			imgDpadLeft.setVisibility(View.INVISIBLE);
-			return true;
+			if (keyEvent.getSource() == InputDevice.SOURCE_JOYSTICK ) {
+				updateDPad(playerNum);
+			} else {
+				sButtonValues.get(playerNum).put(OuyaController.BUTTON_DPAD_LEFT, false);
+				imgDpadLeft.setVisibility(View.INVISIBLE);
+			}
+			break;
 		case OuyaController.BUTTON_DPAD_RIGHT:
-			imgDpadRight.setVisibility(View.INVISIBLE);
-			return true;
+			if (keyEvent.getSource() == InputDevice.SOURCE_JOYSTICK ) {
+				updateDPad(playerNum);
+			} else {
+				sButtonValues.get(playerNum).put(OuyaController.BUTTON_DPAD_RIGHT, false);
+				imgDpadRight.setVisibility(View.INVISIBLE);
+			}
+			break;
 		case OuyaController.BUTTON_DPAD_UP:
-			imgDpadUp.setVisibility(View.INVISIBLE);
-			return true;
+			if (keyEvent.getSource() == InputDevice.SOURCE_JOYSTICK ) {
+				updateDPad(playerNum);
+			} else {
+				sButtonValues.get(playerNum).put(OuyaController.BUTTON_DPAD_UP, false);
+				imgDpadUp.setVisibility(View.INVISIBLE);
+			}
+			break;
 		case OuyaController.BUTTON_MENU:
 			//wait 1 second
-			return true;
+			break;
 		}
 		
 		return true;

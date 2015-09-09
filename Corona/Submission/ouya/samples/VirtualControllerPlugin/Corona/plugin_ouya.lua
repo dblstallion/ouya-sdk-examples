@@ -129,5 +129,16 @@ plugin_ouya.asyncLuaOuyaGetControllerName = function(onGetControllerName, player
 	ouyaSDK.asyncLuaOuyaGetControllerName(onGetControllerName, playerNum)
 end
 
+-- check if the plugin is available
+plugin_ouya.luaOuyaIsAvailable = function()
+	if ouyaSDK == nil then
+		print "ouyaSDK named java functions are not initialized";
+		return;
+	end
+	
+	print ("plugin_ouya.luaOuyaIsAvailable");
+	return ouyaSDK.luaOuyaIsAvailable()
+end
+
 -- Return the Ouya library from the require() 
 return plugin_ouya

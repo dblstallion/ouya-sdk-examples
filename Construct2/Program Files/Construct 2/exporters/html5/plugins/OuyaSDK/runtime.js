@@ -5,6 +5,62 @@
 
 // start of OUYA SDK
 
+	function hookCordovaInput() {
+        if (cordova.exec == undefined) {
+            console.log("Wait for plugin to load...");
+            setTimeout(function(){ hookCordovaInput() }, 1000);
+            return;
+        }
+
+        cordova.exec(
+            function(jsonData) {
+                var jsonObject = JSON.parse(jsonData);
+                var playerNum = jsonObject.playerNum;
+                var axis = jsonObject.axis;
+                var val = jsonObject.val;
+                //console.log("HTML5 CallbackOnGenericMotionEvent playerNum="+playerNum+" axis="+axis+" val="+val);
+				if (onGenericMotionEvent != undefined) {
+					onGenericMotionEvent(playerNum, axis, val);
+				}
+            },
+            function(err) {
+                console.error("HTML5 setCallbackOnGenericMotionEvent Failed: "+err);
+            },
+            "OuyaSDK", "setCallbackOnGenericMotionEvent", [ "" ]);
+
+        cordova.exec(
+            function(jsonData) {
+                var jsonObject = JSON.parse(jsonData);
+                var playerNum = jsonObject.playerNum;
+                var button = jsonObject.button;
+                //console.log("HTML5 CallbackOnKeyUp playerNum="+playerNum+" button="+button);
+				if (onKeyUp != undefined) {
+					onKeyUp(playerNum, button);
+				}
+            },
+            function(err) {
+                console.error("HTML5 setCallbackOnKeyUp Failed: "+err);
+            },
+            "OuyaSDK", "setCallbackOnKeyUp", [ "" ]);
+
+        cordova.exec(
+            function(jsonData) {
+                var jsonObject = JSON.parse(jsonData);
+                var playerNum = jsonObject.playerNum;
+                var button = jsonObject.button;
+                //console.log("HTML5 CallbackonKeyDown playerNum="+playerNum+" button="+button);
+                if (onKeyDown != undefined) {
+					onKeyDown(playerNum, button);
+				}
+            },
+            function(err) {
+                console.error("HTML5 setCallbackOnKeyDown Failed: "+err);
+            },
+            "OuyaSDK", "setCallbackOnKeyDown", [ "" ]);
+	}
+	
+	hookCordovaInput();
+
 	var OuyaSDK = Object();
 
 	var OuyaController = {
@@ -62,7 +118,7 @@
 
 	if (navigator != undefined &&
 		navigator.userAgent != undefined &&
-		navigator.userAgent == "Mozilla/5.0 (Linux; Android 4.1.2; OUYA Console Build/JZO54L-OUYA) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/19.77.34.5 Mobile Safari/537.36") {
+		navigator.userAgent.toLowerCase().indexOf('android') != -1) {
 		gamepads = createGamepads();
 		navigator["getGamepads"] = function () { return gamepads; }
 	}
@@ -190,51 +246,132 @@
 		gamepads[playerNum].buttons[newButton] = false;
 	}
 
-	OuyaSDK.method = "";
 	OuyaSDK.initOuyaPlugin = function(jsonData, onSuccess, onFailure) {
-		OuyaSDK.initValues = jsonData;
-		OuyaSDK.onSuccess = onSuccess;
-		OuyaSDK.onFailure = onFailure;
-		OuyaSDK.method = "initOuyaPlugin";
+      	if (cordova.exec == undefined) {
+      		onFailure(0, "Wait for plugin to load!");
+      		return;
+      	}
+		cordova.exec(
+			function(status) {
+				console.log("HTML5 initOuyaPlugin: SUCCESS status="+status);
+				if (status == "WAIT") {
+					console.log("**********************HTML5 initOuyaPlugin: Waiting for result...");
+				} else if (status == "SUCCESS") {
+					onSuccess();
+				} else {
+					onFailure(0, "Unknown success state!");
+				}
+			},
+			function(jsonObject) {
+			    var errorCode = jsonObject.errorCode;
+			    var errorMessage = jsonObject.errorMessage;
+				console.error("HTML5 initOuyaPlugin: FAILURE errorCode="+errorCode+" errorMessage="+errorMessage);
+				onFailure(errorCode, errorMessage);
+			},
+			"OuyaSDK", "initOuyaPlugin", [ jsonData ]);
 	};
 	OuyaSDK.requestGamerInfo = function(onSuccess, onFailure, onCancel) {
-		OuyaSDK.onSuccess = onSuccess;
-		OuyaSDK.onFailure = onFailure;
-		OuyaSDK.onCancel = onCancel;
-		OuyaSDK.method = "requestGamerInfo";
+		cordova.exec(
+			function(jsonObject) {
+				console.log("HTML5 requestGamerInfo: SUCCESS");
+				onSuccess(JSON.stringify(jsonObject, null, 2));
+			},
+			function(jsonObject) {
+			    var errorCode = jsonObject.errorCode;
+			    var errorMessage = jsonObject.errorMessage;
+				console.error("HTML5 requestGamerInfo: FAILURE errorCode="+errorCode+" errorMessage="+errorMessage);
+				onFailure(errorCode, errorMessage);
+			},
+			"OuyaSDK", "requestGamerInfo", [ ]);
 	};
 	OuyaSDK.requestProducts = function(products, onSuccess, onFailure, onCancel) {
-		OuyaSDK.products = products;
-		OuyaSDK.onSuccess = onSuccess;
-		OuyaSDK.onFailure = onFailure;
-		OuyaSDK.onCancel = onCancel;
-		OuyaSDK.method = "requestProducts";
+		cordova.exec(
+			function(jsonObject) {
+				console.log("HTML5 requestProducts: SUCCESS: products="+JSON.stringify(jsonObject, null, 2));
+				onSuccess(JSON.stringify(jsonObject, null, 2));
+			},
+			function(jsonObject) {
+			    var errorCode = jsonObject.errorCode;
+			    var errorMessage = jsonObject.errorMessage;
+				console.error("HTML5 requestProducts: FAILURE errorCode="+errorCode+" errorMessage="+errorMessage);
+				onFailure(errorCode, errorMessage);
+			},
+			"OuyaSDK", "requestProducts", [ products ]);
 	};
 	OuyaSDK.requestPurchase = function(purchasable, onSuccess, onFailure, onCancel) {
-		OuyaSDK.purchasable = purchasable;
-		OuyaSDK.onSuccess = onSuccess;
-		OuyaSDK.onFailure = onFailure;
-		OuyaSDK.onCancel = onCancel;
-		OuyaSDK.method = "requestPurchase";
+      	console.log("HTML5 requestPurchase: purchasable="+purchasable);
+		cordova.exec(
+			function(jsonObject) {
+				console.log("HTML5 requestPurchase: SUCCESS: identifier="+jsonObject.productIdentifier);
+				onSuccess(jsonObject.productIdentifier);
+			},
+			function(jsonObject) {
+			    var errorCode = jsonObject.errorCode;
+			    var errorMessage = jsonObject.errorMessage;
+				console.error("HTML5 requestPurchase: FAILURE errorCode="+errorCode+" errorMessage="+errorMessage);
+				onFailure(errorCode, errorMessage);
+			},
+			"OuyaSDK", "requestPurchase", [ purchasable ]);
 	};
 	OuyaSDK.requestReceipts = function(onSuccess, onFailure, onCancel) {
-		OuyaSDK.onSuccess = onSuccess;
-		OuyaSDK.onFailure = onFailure;
-		OuyaSDK.onCancel = onCancel;
-		OuyaSDK.method = "requestReceipts";
+      	console.log("HTML5 requestReceipts");
+		cordova.exec(
+			function(jsonArray) {
+				console.log("HTML5 requestReceipts: SUCCESS: jsonObject="+JSON.stringify(jsonArray, null, 2));
+				onSuccess(JSON.stringify(jsonArray, null, 2));
+			},
+			function(jsonObject) {
+			    var errorCode = jsonObject.errorCode;
+			    var errorMessage = jsonObject.errorMessage;
+				console.error("HTML5 requestReceipts: FAILURE errorCode="+errorCode+" errorMessage="+errorMessage);
+				onFailure(errorCode, errorMessage);
+			},
+			"OuyaSDK", "requestReceipts", [ ]);
 	};
 	OuyaSDK.setSafeArea = function(amount, onSuccess, onFailure) {
-		OuyaSDK.safeAreaAmount = amount;
-		OuyaSDK.onSuccess = onSuccess;
-		OuyaSDK.onFailure = onFailure;
-		OuyaSDK.method = "setSafeArea";
+      	console.log("HTML5 setSafeArea amount="+amount);
+		cordova.exec(
+			function() {
+				console.log("HTML5 setSafeArea: SUCCESS");
+				onSuccess();
+			},
+			function(jsonObject) {
+			    var errorCode = jsonObject.errorCode;
+			    var errorMessage = jsonObject.errorMessage;
+				console.error("HTML5 setSafeArea: FAILURE errorCode="+errorCode+" errorMessage="+errorMessage);
+				onFailure(errorCode, errorMessage);
+			},
+			"OuyaSDK", "setSafeArea", [ amount ]);
 	}
 	OuyaSDK.shutdown = function(onSuccess, onFailure) {
-		OuyaSDK.onSuccess = onSuccess;
-		OuyaSDK.onFailure = onFailure;
-		OuyaSDK.method = "shutdown";
+      	console.log("HTML5 shutdown");
+		cordova.exec(
+			function() {
+				console.log("HTML5 shutdown: SUCCESS");
+				onSuccess();
+			},
+			function(jsonObject) {
+			    var errorCode = jsonObject.errorCode;
+			    var errorMessage = jsonObject.errorMessage;
+				console.error("HTML5 shutdown: FAILURE errorCode="+errorCode+" errorMessage="+errorMessage);
+				onFailure(errorCode, errorMessage);
+			},
+			"OuyaSDK", "shutdown", [ ]);
 	}
-
+	OuyaSDK.getDeviceHardware = function(onSuccess, onFailure) {
+	cordova.exec(
+		function(jsonObject) {
+			console.log("HTML5 getDeviceHardware: SUCCESS");
+			onSuccess(jsonObject.deviceHardware);
+		},
+		function(jsonObject) {
+			var errorCode = jsonObject.errorCode;
+			var errorMessage = jsonObject.errorMessage;
+			console.error("HTML5 getDeviceHardware: FAILURE errorCode="+errorCode+" errorMessage="+errorMessage);
+			onFailure(errorCode, errorMessage);
+		},
+		"OuyaSDK", "getDeviceHardware", [ ]);
+	};
 // end of OUYA SDK
 
 assert2(cr, "cr namespace not created");

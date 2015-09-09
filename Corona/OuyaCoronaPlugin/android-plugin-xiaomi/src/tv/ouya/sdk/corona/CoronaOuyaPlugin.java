@@ -32,57 +32,85 @@ import tv.ouya.console.api.*;
 
 public class CoronaOuyaPlugin
 {
-	private static final String TAG = "OuyaCoronaPlugin";
+	private static final String TAG = CoronaOuyaPlugin.class.getSimpleName();
+
+	private static final String VERSION = "1501.3";
+
+	private static final boolean mEnableLogging = false;
+
+	private static boolean sInitialized = false;
 
 	// most of the java functions that are called, need the ouya facade initialized
 	public static void initOuyaPlugin(String jsonData)
 		throws Exception
 	{
 		try {
-			if (null == IOuyaActivity.GetActivity())
-			{
-				throw new Exception("Activity is not set");
-			}
+			if (sInitialized) {
+				Log.i(TAG, "Corona Plugin Already Initialized");
+			} else {
+				Log.i(TAG, "VERSION="+VERSION);
 
-			if (null == IOuyaActivity.GetApplicationKey())
-			{
-				throw new Exception("Signing key is not set");
-			}
-
-			Bundle developerInfo = new Bundle();
-
-	        developerInfo.putByteArray(OuyaFacade.OUYA_DEVELOPER_PUBLIC_KEY, IOuyaActivity.GetApplicationKey());
-	        
-	        JSONArray jsonArray = new JSONArray(jsonData);
-			for (int index = 0; index < jsonArray.length(); ++index) {
-				JSONObject jsonObject = jsonArray.getJSONObject(index);
-				String name = jsonObject.getString("key");
-				String value = jsonObject.getString("value");
-				//Log.i(TAG, "key="+key+" value="+value);
-				if (null == name ||
-					null == value) {
-					continue;
+				if (mEnableLogging) {
+					Log.i(TAG, "initOuyaPlugin jsonData="+jsonData);
 				}
-				if (name.equals("tv.ouya.product_id_list")) {
-					String[] productIds = value.split(",");
-					if (null == productIds) {
+
+				if (null == IOuyaActivity.GetActivity())
+				{
+					throw new Exception("Activity is not set");
+				}
+
+				if (null == IOuyaActivity.GetApplicationKey())
+				{
+					throw new Exception("Signing key is not set");
+				}
+
+				Bundle developerInfo = new Bundle();
+
+		        developerInfo.putByteArray(OuyaFacade.OUYA_DEVELOPER_PUBLIC_KEY, IOuyaActivity.GetApplicationKey());
+		        
+		        JSONArray jsonArray = new JSONArray(jsonData);
+				for (int index = 0; index < jsonArray.length(); ++index) {
+					JSONObject jsonObject = jsonArray.getJSONObject(index);
+					String name = jsonObject.getString("key");
+					String value = jsonObject.getString("value");
+					if (null == name ||
+						null == value) {
 						continue;
 					}
-					developerInfo.putStringArray("tv.ouya.product_id_list", productIds);
-				} else {
-					developerInfo.putString(name, value);
+					if (name.equals("tv.ouya.product_id_list")) {
+						if (mEnableLogging) {
+							Log.i(TAG, "key="+name);
+						}
+						String[] productIds = value.split(",");
+						if (null == productIds) {
+							continue;
+						}
+						if (mEnableLogging) {
+							for (String productId : productIds) {
+								Log.i(TAG, " value="+productId);
+							}
+						}
+						developerInfo.putStringArray("tv.ouya.product_id_list", productIds);
+					} else {
+						if (mEnableLogging) {
+							Log.i(TAG, "key="+name+" value="+value);
+						}
+						developerInfo.putString(name, value);
+					}
 				}
+
+				//Log.i(TAG, "Developer info was set.");
+				
+				CoronaOuyaFacade coronaOuyaFacade =
+					new CoronaOuyaFacade(IOuyaActivity.GetActivity(), IOuyaActivity.GetSavedInstanceState(), developerInfo);
+				
+				//make facade accessible by activity
+				IOuyaActivity.SetCoronaOuyaFacade(coronaOuyaFacade);
+
+				Log.i(TAG, "Corona Plugin Initialized.");
+
+				sInitialized = true;
 			}
-
-			//Log.i(TAG, "Developer info was set.");
-			
-			CoronaOuyaFacade coronaOuyaFacade =
-				new CoronaOuyaFacade(IOuyaActivity.GetActivity(), IOuyaActivity.GetSavedInstanceState(), developerInfo);
-			
-			//make facade accessible by activity
-			IOuyaActivity.SetCoronaOuyaFacade(coronaOuyaFacade);
-
-			Log.i(TAG, "Corona Plugin Initialized.");
 		}
 		catch (Exception e) {
 			Log.e(TAG, "initOuyaPlugin exception: " + e.toString());
@@ -190,5 +218,9 @@ public class CoronaOuyaPlugin
 			Log.e(TAG, "CoronaOuyaPlugin: getDeviceHardwareName exception: " + ex.toString());
 		}
 		return "";	
+	}
+
+	public static boolean isAvailable() {
+		return CoronaOuyaActivity.isAvailable();
 	}
 }

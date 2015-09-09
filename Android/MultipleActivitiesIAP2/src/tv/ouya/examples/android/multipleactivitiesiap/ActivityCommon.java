@@ -40,6 +40,9 @@ public class ActivityCommon extends Activity
 	// Your game talks to the OuyaFacade, which hides all the mechanics of doing an in-app purchase.
 	private static OuyaFacade sOuyaFacade = null;
 	
+	// listener for initialization
+	private static CancelIgnoringOuyaResponseListener<Bundle> sInitCompletedListener = null;
+	
 	// listener for fetching gamer info
 	private static CancelIgnoringOuyaResponseListener<GamerInfo> sRequestGamerInfoListener = null;
 
@@ -88,16 +91,29 @@ public class ActivityCommon extends Activity
 
         developerInfo.putString(OuyaFacade.OUYA_DEVELOPER_ID, "310a8f51-4d6e-4ae5-bda0-b93878e5f5d0");
         developerInfo.putByteArray(OuyaFacade.OUYA_DEVELOPER_PUBLIC_KEY, applicationKey);
-        developerInfo.putString(OuyaFacade.XIAOMI_APPLICATION_ID, "0000000000000");
-        developerInfo.putString(OuyaFacade.XIAOMI_APPLICATION_KEY, "000000000000000000");
+        //developerInfo.putString(OuyaFacade.XIAOMI_APPLICATION_ID, "0000000000000");
+        //developerInfo.putString(OuyaFacade.XIAOMI_APPLICATION_KEY, "000000000000000000");
         
         String[] products = new String[] {
             "sharp_axe",
         };
 
-        developerInfo.putStringArray(OuyaFacade.OUYA_PRODUCT_ID_LIST, products);
+        //developerInfo.putStringArray(OuyaFacade.OUYA_PRODUCT_ID_LIST, products);
+
+        sInitCompletedListener = new CancelIgnoringOuyaResponseListener<Bundle>() {
+            @Override
+            public void onSuccess(Bundle info) {
+            	Log.i(TAG, "sInitCompletedListener: onSuccess");
+            }
+
+            @Override
+            public void onFailure(int errorCode, String errorMessage, Bundle optionalData) {
+            	Log.i(TAG, "sInitCompletedListener: onFailure errorCode="+errorCode+" errorMessage="+errorMessage);
+            }
+        };
         
 		sOuyaFacade = OuyaFacade.getInstance();
+		//sOuyaFacade.registerInitCompletedListener(sInitCompletedListener);
 		sOuyaFacade.init(context, developerInfo);
 		
 		sRequestGamerInfoListener = new CancelIgnoringOuyaResponseListener<GamerInfo>() {
